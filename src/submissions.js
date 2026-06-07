@@ -61,7 +61,7 @@ export async function handleCreateSubmission(request, env) {
   const data = await parseBody(request);
   const topicId = data.topic_id;
   const submitType = data.submit_type || 'existing';
-  if (!topicId) return err('缺少topic_id');
+  if (!topicId) return err('Missing topic_id');
 
   let noteId = '', noteLink = '', realName = '', profileLink = '', contact = '', draftContent = '';
 
@@ -69,13 +69,13 @@ export async function handleCreateSubmission(request, env) {
     noteLink = (data.note_link || '').trim();
     realName = (data.real_name || '').trim();
     profileLink = (data.profile_link || '').trim();
-    if (!noteLink) return err('请填写笔记链接');
+    if (!noteLink) return err('Please fill in note link');
     noteId = extractNoteId(noteLink);
   } else {
     profileLink = (data.profile_link || '').trim();
     contact = (data.contact || '').trim();
     draftContent = (data.draft_content || '').trim();
-    if (!profileLink || !draftContent) return err('请填写主页链接和脚本思路');
+    if (!profileLink || !draftContent) return err('Please fill in profile link and draft');
     realName = data.real_name || '';
   }
 
@@ -84,7 +84,7 @@ export async function handleCreateSubmission(request, env) {
     const dup = await env.DB.prepare(
       "SELECT id FROM submissions WHERE topic_id=? AND note_id=?"
     ).bind(topicId, noteId).first();
-    if (dup) return err('该笔记已添加过', 409);
+    if (dup) return err('Note already added', 409);
   }
 
   // 计算第几次提交
@@ -130,7 +130,7 @@ export async function handleUpdateSubmission(request, env, subId) {
   const isOperator = user.role === 'operator';
 
   const sub = await env.DB.prepare("SELECT * FROM submissions WHERE id=?").bind(subId).first();
-  if (!sub) return err('投稿不存在', 404);
+  if (!sub) return err('Submission not found', 404);
   if (sub.user_id !== user.user_id && !isOperator) return err('无权限', 403);
 
   const status = data.status || sub.status;

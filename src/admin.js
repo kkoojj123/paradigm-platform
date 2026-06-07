@@ -5,7 +5,7 @@ import { getCurrentUser } from './auth.js';
 // GET /api/admin/users
 export async function handleAdminGetUsers(request, env) {
   const user = await getCurrentUser(request, env);
-  if (!user || user.role !== 'operator') return err('需要运营权限', 403);
+  if (!user || user.role !== 'operator') return err('Operator permission required', 403);
 
   const url = new URL(request.url);
   const role = url.searchParams.get('role') || '';
@@ -30,12 +30,12 @@ export async function handleAdminGetUsers(request, env) {
 // PUT /api/admin/users/:id/verify
 export async function handleVerifyUser(request, env, userId) {
   const user = await getCurrentUser(request, env);
-  if (!user || user.role !== 'operator') return err('需要运营权限', 403);
+  if (!user || user.role !== 'operator') return err('Operator permission required', 403);
 
   const data = await parseBody(request);
   const status = data.status;
   const note = data.note || '';
-  if (!['approved', 'rejected'].includes(status)) return err('无效状态');
+  if (!['approved', 'rejected'].includes(status)) return err('Invalid status');
 
   await env.DB.prepare(
     "UPDATE users SET verify_status=?, verify_note=?, verified_at=datetime('now') WHERE id=? AND role='creator'"
@@ -46,7 +46,7 @@ export async function handleVerifyUser(request, env, userId) {
 // GET /api/users (运营查看所有创作者)
 export async function handleGetUsers(request, env) {
   const user = await getCurrentUser(request, env);
-  if (!user || user.role !== 'operator') return err('需要运营权限', 403);
+  if (!user || user.role !== 'operator') return err('Operator permission required', 403);
 
   const { results } = await env.DB.prepare(
     "SELECT id, role, username, display_name, xhs_uid, xhs_avatar, company, created_at FROM users WHERE role != 'operator' ORDER BY created_at DESC"
@@ -65,7 +65,7 @@ export async function handleGetHotNotes(request, env) {
 // POST /api/hot_notes/refresh（运营手动添加热点笔记）
 export async function handleRefreshHotNotes(request, env) {
   const user = await getCurrentUser(request, env);
-  if (!user || user.role !== 'operator') return err('需要运营权限', 403);
+  if (!user || user.role !== 'operator') return err('Operator permission required', 403);
 
   const data = await parseBody(request);
   const notes = data.notes || [];
@@ -135,7 +135,7 @@ export async function handleFetchNote(request, env) {
     collects: 0,
     author: '',
     avatar: '',
-    error: '无法自动获取笔记信息，请手动填写',
+    error: 'Cannot fetch note info, please fill manually',
   });
 }
 
@@ -170,13 +170,13 @@ export async function handleProxyImage(request, env) {
 export async function handleUpload(request, env) {
   const formData = await request.formData();
   const file = formData.get('file');
-  if (!file) return err('没有文件');
+  if (!file) return err('No file');
 
   const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
-  if (!allowed.includes(file.type)) return err('不支持的文件类型');
+  if (!allowed.includes(file.type)) return err('Unsupported file type');
 
   // 限制 5MB
-  if (file.size > 5 * 1024 * 1024) return err('图片不能超过 5MB');
+  if (file.size > 5 * 1024 * 1024) return err('Image must be under 5MB');
 
   const arrayBuffer = await file.arrayBuffer();
   const bytes = new Uint8Array(arrayBuffer);

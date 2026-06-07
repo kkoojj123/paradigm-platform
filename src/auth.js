@@ -17,7 +17,7 @@ export async function handleLogin(request, env) {
   const data = await parseBody(request);
   const username = (data.username || '').trim();
   const password = data.password || '';
-  if (!username || !password) return err('用户名和密码不能为空');
+  if (!username || !password) return err('Username and password required');
 
   const pwHash = await hashPassword(password);
   let user = await env.DB.prepare(
@@ -30,11 +30,11 @@ export async function handleLogin(request, env) {
     ).bind(username, pwHash).first();
   }
 
-  if (!user) return err('昵称或密码错误', 401);
+  if (!user) return err('Invalid username or password', 401);
 
   const vs = user.verify_status || 'approved';
-  if (vs === 'pending') return err('你的账号正在审核中，请等待运营验证，通过后即可登录', 403);
-  if (vs === 'rejected') return err('你的注册申请未通过审核，如有疑问请联系运营', 403);
+  if (vs === 'pending') return err('Account under review, please wait for approval', 403);
+  if (vs === 'rejected') return err('Registration rejected, please contact admin', 403);
 
   const token = await signJWT({
     user_id: user.id,
@@ -67,12 +67,12 @@ export async function handleRegister(request, env) {
   const xhs_screenshot = (data.xhs_screenshot || '').trim();
   const password = data.password || '';
 
-  if (!display_name) return err('请填写小红书昵称');
-  if (!xhs_profile_url) return err('请填写小红书主页链接');
-  if (!xhs_screenshot) return err('请上传小红书主页截图');
-  if (!password) return err('请设置登录密码');
-  if (password.length < 6) return err('密码至少6位');
-  if (!xhs_profile_url.startsWith('http')) return err('主页链接格式不正确');
+  if (!display_name) return err('Please fill in your XHS nickname');
+  if (!xhs_profile_url) return err('Please fill in your XHS profile URL');
+  if (!xhs_screenshot) return err('Please upload your XHS profile screenshot');
+  if (!password) return err('Please set a password');
+  if (password.length < 6) return err('Password must be at least 6 characters');
+  if (!xhs_profile_url.startsWith('http')) return err('Invalid profile URL format');
 
   const username = `creator_${Date.now()}`;
   const pwHash = await hashPassword(password);
@@ -99,7 +99,7 @@ export async function handleRegister(request, env) {
       username: user.username,
       display_name: user.display_name,
       verify_status: 'pending',
-      message: '注册成功！运营将在 1-2 个工作日内审核你的账号，审核通过后即可登录',
+      message: 'Registration successful! Please wait 1-2 business days for approval',
     }), {
       status: 201,
       headers: {
@@ -108,7 +108,7 @@ export async function handleRegister(request, env) {
       },
     });
   } catch (e) {
-    if (e.message && e.message.includes('UNIQUE')) return err('该昵称已被注册', 409);
+    if (e.message && e.message.includes('UNIQUE')) return err('Nickname already registered', 409);
     throw e;
   }
 }
@@ -117,7 +117,7 @@ export async function handleRegister(request, env) {
 export async function handleXhsLogin(request, env) {
   const data = await parseBody(request);
   const link = (data.link || '').trim();
-  if (!link) return err('请输入小红书主页链接');
+  if (!link) return err('Please enter your XHS profile URL');
 
   const m = link.match(/\/user\/profile\/([a-f0-9]+)/);
   const uid = m ? m[1] : link.trim();

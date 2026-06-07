@@ -127,7 +127,7 @@ export default {
 
     } catch (e) {
       console.error(e);
-      return new Response(JSON.stringify({ error: '服务器内部错误', detail: e.message }), {
+      return new Response(JSON.stringify({ error: 'Internal Server Error', detail: e.message }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       });

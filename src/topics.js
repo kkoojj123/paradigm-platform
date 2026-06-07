@@ -37,7 +37,7 @@ export async function handleGetTopic(request, env, topicId) {
     (SELECT COUNT(*) FROM submissions s WHERE s.topic_id=t.id) as sub_count
     FROM topics t LEFT JOIN users u ON t.created_by=u.id WHERE t.id=?
   `).bind(topicId).first();
-  if (!row) return err('不存在', 404);
+  if (!row) return err('Not found', 404);
   return json(serializeTopic(row));
 }
 
@@ -48,7 +48,7 @@ export async function handleCreateTopic(request, env) {
 
   const data = await parseBody(request);
   const title = (data.title || '').trim();
-  if (!title) return err('标题不能为空');
+  if (!title) return err('Title is required');
 
   const status = user.role === 'operator' ? 'published' : 'pending';
   const source = user.role || 'creator';
@@ -81,11 +81,11 @@ export async function handleCreateTopic(request, env) {
 // PUT /api/topics/:id
 export async function handleUpdateTopic(request, env, topicId) {
   const user = await getCurrentUser(request, env);
-  if (!user || user.role !== 'operator') return err('无权限', 403);
+  if (!user || user.role !== 'operator') return err('Forbidden', 403);
 
   const data = await parseBody(request);
   const row = await env.DB.prepare("SELECT id FROM topics WHERE id=?").bind(topicId).first();
-  if (!row) return err('选题不存在', 404);
+  if (!row) return err('Topic not found', 404);
 
   const fields = [];
   const vals = [];
@@ -105,11 +105,11 @@ export async function handleUpdateTopic(request, env, topicId) {
 // PUT /api/topics/:id/status
 export async function handleUpdateTopicStatus(request, env, topicId) {
   const user = await getCurrentUser(request, env);
-  if (!user || user.role !== 'operator') return err('需要运营权限', 403);
+  if (!user || user.role !== 'operator') return err('Operator permission required', 403);
 
   const data = await parseBody(request);
   const status = data.status;
-  if (!['published', 'pending', 'offline'].includes(status)) return err('无效状态');
+  if (!['published', 'pending', 'offline'].includes(status)) return err('Invalid status');
 
   await env.DB.prepare("UPDATE topics SET status=? WHERE id=?").bind(status, topicId).run();
   return json({ ok: true });
@@ -118,7 +118,7 @@ export async function handleUpdateTopicStatus(request, env, topicId) {
 // DELETE /api/topics/:id  &  DELETE /api/admin/topics/:id
 export async function handleDeleteTopic(request, env, topicId) {
   const user = await getCurrentUser(request, env);
-  if (!user || user.role !== 'operator') return err('无权限', 403);
+  if (!user || user.role !== 'operator') return err('Forbidden', 403);
 
   await env.DB.prepare("DELETE FROM topics WHERE id=?").bind(topicId).run();
   return json({ ok: true });
@@ -127,7 +127,7 @@ export async function handleDeleteTopic(request, env, topicId) {
 // GET /api/admin/topics
 export async function handleAdminGetTopics(request, env) {
   const user = await getCurrentUser(request, env);
-  if (!user || user.role !== 'operator') return err('需要运营权限', 403);
+  if (!user || user.role !== 'operator') return err('Operator permission required', 403);
 
   const { results } = await env.DB.prepare(`
     SELECT t.*, u.display_name as creator_name,
@@ -147,11 +147,11 @@ export async function handleAdminGetTopics(request, env) {
 // POST /api/topics/:id/add_notes （运营添加已有投稿笔记）
 export async function handleAddNotes(request, env, topicId) {
   const user = await getCurrentUser(request, env);
-  if (!user || user.role !== 'operator') return err('需要运营权限', 403);
+  if (!user || user.role !== 'operator') return err('Operator permission required', 403);
 
   const data = await parseBody(request);
   const notes = data.notes || [];
-  if (!notes.length) return err('没有笔记数据');
+  if (!notes.length) return err('No note data');
 
   const added = [];
   const skipped = [];
