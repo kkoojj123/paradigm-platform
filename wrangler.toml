@@ -9,11 +9,7 @@ assets = { directory = "./public", binding = "ASSETS" }
 [[d1_databases]]
 binding = "DB"
 database_name = "paradigm-platform"
-database_id = "PLACEHOLDER_REPLACE_AFTER_CREATE"
-
-[[r2_buckets]]
-binding = "UPLOADS"
-bucket_name = "paradigm-uploads"
+database_id = "d52046c5-3ab2-4328-af2d-caf54096abc3"
 
 [vars]
 SECRET_KEY = "xhs_game_theater_2026_secret_cf"

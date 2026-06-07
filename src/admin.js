@@ -166,7 +166,7 @@ export async function handleProxyImage(request, env) {
   }
 }
 
-// POST /api/upload （图片上传到 R2）
+// POST /api/upload （图片转 base64 存储，无需 R2）
 export async function handleUpload(request, env) {
   const formData = await request.formData();
   const file = formData.get('file');
@@ -175,15 +175,15 @@ export async function handleUpload(request, env) {
   const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
   if (!allowed.includes(file.type)) return err('不支持的文件类型');
 
-  const ext = file.name.split('.').pop().toLowerCase();
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  // 限制 5MB
+  if (file.size > 5 * 1024 * 1024) return err('图片不能超过 5MB');
 
   const arrayBuffer = await file.arrayBuffer();
-  await env.UPLOADS.put(filename, arrayBuffer, {
-    httpMetadata: { contentType: file.type },
-  });
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+  const base64 = btoa(binary);
+  const dataUrl = `data:${file.type};base64,${base64}`;
 
-  // R2 public URL（需要开启 R2 bucket public access）
-  const url = `https://uploads.paradigm-platform.pages.dev/${filename}`;
-  return json({ url, filename });
+  return json({ url: dataUrl, filename: file.name });
 }

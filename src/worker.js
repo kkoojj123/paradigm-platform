@@ -14,6 +14,7 @@ import {
   handleGetHotNotes, handleRefreshHotNotes,
   handleFetchNote, handleProxyImage, handleUpload
 } from './admin.js';
+import { ASSETS } from 'cloudflare:workers';
 import { CORS_HEADERS } from './utils.js';
 
 export default {
@@ -28,12 +29,9 @@ export default {
     }
 
     try {
-      // ===== 静态页面 =====
-      if (path === '/' || path === '/index.html') {
-        return await serveHtml(env, 'index.html');
-      }
-      if (path === '/admin' || path === '/admin.html') {
-        return await serveHtml(env, 'admin.html');
+      // ===== 静态页面（由 Cloudflare Assets 自动处理） =====
+      if (path === '/' || path === '/index.html' || path === '/admin' || path === '/admin.html') {
+        return env.ASSETS.fetch(request);
       }
 
       // ===== API 路由 =====
