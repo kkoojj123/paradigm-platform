@@ -1,10 +1,5 @@
 name = "paradigm-platform"
-main = "src/worker.js"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
-
-# 静态资源（index.html / admin.html 放在 public/ 目录）
-assets = { directory = "./public", binding = "ASSETS" }
+pages_build_output_dir = "public"
 
 [[d1_databases]]
 binding = "DB"
