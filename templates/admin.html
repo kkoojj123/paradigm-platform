@@ -1,0 +1,2685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>游戏IF剧场——运营后台</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #E63E6D;
+    --primary-hover: #c52d5a;
+    --success: #10B981;
+    --danger: #EF4444;
+    --purple: #7C3AED;
+    --text-main: #111827;
+    --text-sub: #6B7280;
+    --text-light: #9CA3AF;
+    --bg: #f9fafb;
+    --card-bg: #ffffff;
+    --border: #E5E7EB;
+    --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+    --radius: 16px;
+    --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-main);
+    min-height: 100vh;
+  }
+
+  /* ── Navbar ── */
+  .navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: 56px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .navbar-logo {
+    font-size: 18px; font-weight: 700; color: var(--primary);
+    letter-spacing: -0.3px;
+  }
+  .navbar-logout {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 14px; font-size: 13px; color: var(--text-sub);
+    cursor: pointer; font-family: var(--font);
+    transition: border-color .2s, color .2s;
+  }
+  .navbar-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* ── Tab Nav ── */
+  .tab-nav {
+    position: fixed; top: 56px; left: 0; right: 0; z-index: 99;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 24px;
+    gap: 4px;
+  }
+  .tab-nav-btn {
+    background: none; border: none; font-family: var(--font);
+    font-size: 14px; font-weight: 500; color: var(--text-sub);
+    padding: 14px 16px; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    white-space: nowrap;
+  }
+  .tab-nav-btn:hover { color: var(--primary); }
+  .tab-nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* ── Main Content ── */
+  .main {
+    margin-top: calc(56px + 49px);
+    padding: 24px;
+    max-width: 1200px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  /* ── Login Screen ── */
+  #login-screen {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px 36px;
+    width: 360px;
+  }
+  .login-card h2 {
+    font-size: 22px; font-weight: 700; color: var(--text-main);
+    margin-bottom: 6px;
+  }
+  .login-card .login-sub {
+    font-size: 13px; color: var(--text-sub); margin-bottom: 28px;
+  }
+  .form-field { margin-bottom: 16px; }
+  .form-field label {
+    display: block; font-size: 13px; font-weight: 500; color: var(--text-sub);
+    margin-bottom: 6px;
+  }
+  .form-field input, .form-field select, .form-field textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; font-size: 14px; font-family: var(--font);
+    color: var(--text-main); background: var(--card-bg);
+    transition: border-color .2s, box-shadow .2s; outline: none;
+  }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(230,62,109,0.12);
+  }
+  .form-field textarea { resize: vertical; min-height: 90px; }
+  .form-field .input-row { display: flex; gap: 8px; }
+  .form-field .input-row input { flex: 1; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: none; border-radius: 10px;
+    padding: 8px 16px; font-size: 13px; font-weight: 500;
+    font-family: var(--font); cursor: pointer;
+    transition: background .2s, opacity .2s, transform .1s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--primary); color: white;
+  }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { background: #059669; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #DC2626; }
+  .btn-ghost {
+    background: #F3F4F6; color: var(--text-sub);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: #E5E7EB; }
+  .btn-outline-danger {
+    background: none; color: var(--danger);
+    border: 1px solid #FECACA;
+  }
+  .btn-outline-danger:hover { background: #FEE2E2; }
+  .btn-full { width: 100%; justify-content: center; padding: 12px; font-size: 15px; }
+  .btn-sm { padding: 5px 11px; font-size: 12px; border-radius: 8px; }
+
+  /* ── Stat Cards ── */
+  .stat-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 20px 24px;
+  }
+  .stat-card .stat-num {
+    font-size: 32px; font-weight: 700; color: var(--primary);
+    line-height: 1.1;
+  }
+  .stat-card .stat-label {
+    font-size: 13px; color: var(--text-sub); margin-top: 6px;
+  }
+
+  /* ── Section Header ── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 18px; font-weight: 700; color: var(--text-main);
+  }
+
+  /* ── Filter Bar ── */
+  .filter-bar {
+    display: flex; flex-wrap: wrap; gap: 8px 16px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .filter-group { display: flex; gap: 4px; align-items: center; }
+  .filter-group label {
+    font-size: 12px; color: var(--text-light); margin-right: 4px;
+    white-space: nowrap;
+  }
+  .filter-pill {
+    background: none; border: 1px solid var(--border);
+    border-radius: 999px; padding: 5px 14px;
+    font-size: 12px; font-weight: 500; color: var(--text-sub);
+    cursor: pointer; font-family: var(--font);
+    transition: background .15s, color .15s, border-color .15s;
+    white-space: nowrap;
+  }
+  .filter-pill:hover { border-color: var(--primary); color: var(--primary); }
+  .filter-pill.active {
+    background: var(--primary); color: white; border-color: var(--primary);
+  }
+  .filter-select {
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 5px 14px; font-size: 12px; color: var(--text-sub);
+    background: none; font-family: var(--font); cursor: pointer; outline: none;
+    transition: border-color .15s;
+  }
+  .filter-select:focus { border-color: var(--primary); }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-flex; align-items: center;
+    border-radius: 999px; padding: 2px 10px;
+    font-size: 11px; font-weight: 600; line-height: 1.6;
+    white-space: nowrap;
+  }
+  .badge-topic { background: #DBEAFE; color: #1E40AF; }
+  .badge-plan { background: #EDE9FE; color: #5B21B6; }
+  .badge-published { background: #D1FAE5; color: #065F46; }
+  .badge-offline { background: #F3F4F6; color: #6B7280; }
+  .badge-pending { background: #FEF3C7; color: #92400E; }
+  .badge-approved { background: #D1FAE5; color: #065F46; }
+  .badge-rejected { background: #FEE2E2; color: #991B1B; }
+  .badge-source { background: #F3F4F6; color: #374151; }
+  .badge-existing { background: #DBEAFE; color: #1E40AF; }
+  .badge-draft { background: #F3F4F6; color: #374151; }
+
+  /* ── Topic Card ── */
+  .topic-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 20px 20px 16px;
+    margin-bottom: 12px;
+    display: flex; gap: 20px; align-items: flex-start;
+    transition: box-shadow .2s;
+  }
+  .topic-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .topic-card-left { flex: 1; min-width: 0; }
+  .topic-card-title {
+    font-size: 17px; font-weight: 600; color: var(--text-main);
+    margin-bottom: 8px;
+  }
+  .topic-card-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .topic-card-desc {
+    font-size: 13px; color: var(--text-sub);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; line-height: 1.5;
+  }
+  .topic-card-right {
+    width: 420px; flex-shrink: 0;
+  }
+  .topic-stats-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .topic-stat-cell {
+    padding: 10px 0; text-align: center;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .topic-stat-cell:nth-child(3), .topic-stat-cell:nth-child(6) { border-right: none; }
+  .topic-stat-cell:nth-child(4), .topic-stat-cell:nth-child(5), .topic-stat-cell:nth-child(6) { border-bottom: none; }
+  .topic-stat-num {
+    font-size: 18px; font-weight: 700; color: var(--text-main); line-height: 1;
+  }
+  .topic-stat-num.orange { color: #F59E0B; }
+  .topic-stat-num.green { color: var(--success); }
+  .topic-stat-num.red { color: var(--danger); }
+  .topic-stat-label { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+  .topic-actions {
+    display: flex; justify-content: flex-end; gap: 6px; flex-wrap: wrap;
+  }
+
+  /* ── Submission Card ── */
+  .submission-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 16px 20px;
+    margin-bottom: 10px;
+    transition: box-shadow .2s;
+  }
+  .submission-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .operator-sub-card { border-left: 3px solid var(--primary); }
+  .operator-sub-card .sub-cover { width: 60px; height: 60px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+  .operator-sub-card .sub-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .submission-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .submission-top-left { display: flex; gap: 6px; align-items: center; }
+  .submission-top-right { font-size: 12px; color: var(--text-light); }
+  .submission-author {
+    font-weight: 600; font-size: 15px; color: var(--text-main);
+    margin-bottom: 6px;
+  }
+  .submission-author span { font-weight: 400; font-size: 12px; color: var(--text-light); margin-left: 6px; }
+  .submission-links { font-size: 13px; color: var(--text-sub); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .submission-links a { color: var(--primary); text-decoration: none; }
+  .submission-links a:hover { text-decoration: underline; }
+  .submission-contact { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; }
+  .submission-script-toggle {
+    background: none; border: none; color: var(--primary); font-size: 12px;
+    cursor: pointer; padding: 0; font-family: var(--font);
+  }
+  .submission-script-content {
+    display: none; font-size: 13px; color: var(--text-sub);
+    background: var(--bg); border-radius: 8px; padding: 10px 12px;
+    margin-top: 6px; white-space: pre-wrap; line-height: 1.5;
+  }
+  .submission-script-content.expanded { display: block; }
+  .submission-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+  /* ── Table ── */
+  .table-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .table-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+  }
+  .data-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .data-table th {
+    background: #F9FAFB; padding: 10px 16px; text-align: left;
+    font-weight: 600; color: var(--text-sub); font-size: 12px;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  .data-table th.sortable { cursor: pointer; user-select: none; }
+  .data-table th.sortable:hover { color: var(--primary); }
+  .data-table td {
+    padding: 12px 16px; border-bottom: 1px solid #F3F4F6;
+    color: var(--text-main); vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: #FAFAFA; }
+
+  /* ── Publish Form ── */
+  .publish-form-card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 28px 32px;
+    max-width: 640px; margin: 0 auto;
+  }
+  .type-toggle { display: flex; gap: 4px; background: #F3F4F6; border-radius: 999px; padding: 3px; width: fit-content; margin-bottom: 0; }
+  .type-btn {
+    background: none; border: none; border-radius: 999px; padding: 7px 20px;
+    font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--font);
+    color: var(--text-sub); transition: background .15s, color .15s;
+  }
+  .type-btn.active { background: white; color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+  /* ── Tags ── */
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag-item {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #DBEAFE; color: #1E40AF; border-radius: 999px;
+    padding: 3px 10px; font-size: 12px;
+  }
+  .tag-remove { background: none; border: none; cursor: pointer; color: #1E40AF; font-size: 14px; line-height: 1; padding: 0; }
+
+  /* ── Alert ── */
+  .alert {
+    border-radius: 10px; padding: 12px 16px; font-size: 13px;
+    margin-bottom: 16px; display: none;
+  }
+  .alert.show { display: block; }
+  .alert-success { background: #D1FAE5; color: #065F46; }
+  .alert-error { background: #FEE2E2; color: #991B1B; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--text-light);
+    font-size: 15px;
+  }
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* ── Loading ── */
+  .loading { text-align: center; padding: 40px; color: var(--text-light); font-size: 14px; }
+
+  /* ── Edit Drawer (inline) ── */
+  .edit-overlay {
+    position: fixed; inset: 0; z-index: 150;
+    background: rgba(0,0,0,0.3); display: none; justify-content: flex-end;
+  }
+  .edit-overlay.open { display: flex; }
+  .edit-drawer {
+    background: var(--card-bg); width: 480px; max-width: 95vw;
+    height: 100%; overflow-y: auto; padding: 28px 28px 40px;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+  }
+  .edit-drawer h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text-main); }
+  .drawer-close {
+    position: absolute; top: 16px; right: 24px;
+    background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-sub);
+  }
+
+  /* ── Tab panels ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .topic-card { flex-direction: column; }
+    .topic-card-right { width: 100%; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .main { padding: 16px; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen">
+  <div class="login-card">
+    <h2>🎬 游戏IF剧场 后台</h2>
+    <p class="login-sub">请登录以继续管理</p>
+    <div class="alert alert-error" id="login-error">用户名或密码错误，请重试</div>
+    <div class="form-field">
+      <label>用户名</label>
+      <input type="text" id="login-username" placeholder="operator" value="operator">
+    </div>
+    <div class="form-field">
+      <label>密码</label>
+      <input type="password" id="login-password" placeholder="请输入密码">
+    </div>
+    <button class="btn btn-primary btn-full" id="login-btn" style="margin-top:8px;">登录</button>
+  </div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar" style="display:none;">
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="navbar-logo">🎬 游戏IF剧场 后台</div>
+    <a href="/" target="_blank" style="font-size:13px;color:var(--text-sub);text-decoration:none;display:flex;align-items:center;gap:4px;border:1px solid var(--border);border-radius:8px;padding:5px 12px;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-sub)'">
+      🌐 前往前台
+    </a>
+  </div>
+  <button class="navbar-logout" id="logout-btn">退出登录</button>
+</nav>
+
+<!-- Tab Navigation -->
+<div class="tab-nav" id="tab-nav" style="display:none;">
+  <button class="tab-nav-btn active" data-tab="overview">📋 任务总览</button>
+  <button class="tab-nav-btn" data-tab="publish">➕ 发布选题</button>
+  <button class="tab-nav-btn" data-tab="review">👥 报名审核</button>
+  <button class="tab-nav-btn" data-tab="stats">📊 数据跟进</button>
+  <button class="tab-nav-btn" data-tab="creators">👤 创作者管理</button>
+</div>
+
+<!-- Main Content -->
+<div class="main" id="main-content" style="display:none;">
+
+  <!-- ── Overview Tab ── -->
+  <div class="tab-panel active" id="tab-overview">
+    <!-- Stat Cards -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-published">—</div>
+        <div class="stat-label">已发布任务</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total-subs">—</div>
+        <div class="stat-label">总报名人数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-approved">—</div>
+        <div class="stat-label">已通过</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-content">—</div>
+        <div class="stat-label">已收内容</div>
+      </div>
+    </div>
+
+    <!-- Section Header -->
+    <div class="section-header">
+      <span class="section-title">任务总览</span>
+      <button class="btn btn-primary" id="go-publish-btn">➕ 发布新选题</button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar" id="overview-filters">
+      <div class="filter-group">
+        <span class="filter-pill active" data-group="type" data-value="">全部</span>
+        <span class="filter-pill" data-group="type" data-value="topic">选题</span>
+        <span class="filter-pill" data-group="type" data-value="plan">企划</span>
+        <span class="filter-pill" data-group="type" data-value="trend">趋势</span>
+      </div>
+      <div class="filter-group">
+        <span class="filter-pill active" data-group="source" data-value="">全部来源</span>
+        <span class="filter-pill" data-group="source" data-value="operator">运营</span>
+        <span class="filter-pill" data-group="source" data-value="brand">厂商</span>
+        <span class="filter-pill" data-group="source" data-value="creator">创作者</span>
+      </div>
+      <div class="filter-group">
+        <span class="filter-pill active" data-group="status" data-value="">全部状态</span>
+        <span class="filter-pill" data-group="status" data-value="published">已发布</span>
+        <span class="filter-pill" data-group="status" data-value="pending">待审核</span>
+        <span class="filter-pill" data-group="status" data-value="offline">已下架</span>
+      </div>
+    </div>
+
+    <div id="overview-list"></div>
+  </div>
+
+  <!-- ── Publish Tab ── -->
+  <div class="tab-panel" id="tab-publish">
+    <div class="section-header" style="margin-bottom:20px;">
+      <span class="section-title">发布选题</span>
+    </div>
+    <div class="alert alert-success" id="publish-success">✅ 选题发布成功！正在跳回任务总览…</div>
+    <div class="alert alert-error" id="publish-error">发布失败，请稍后重试</div>
+    <div class="publish-form-card">
+      <div class="form-field">
+        <label>类型</label>
+        <div class="type-toggle">
+          <button class="type-btn active" data-type="topic">选题</button>
+          <button class="type-btn" data-type="plan">企划</button>
+          <button class="type-btn" data-type="trend">趋势</button>
+        </div>
+        <input type="hidden" id="publish-type" value="topic">
+      </div>
+      <div class="form-field">
+        <label>来源</label>
+        <select id="publish-source">
+          <option value="operator">运营发起</option>
+          <option value="brand">厂商发起</option>
+          <option value="creator">创作者发起</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>标题 <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="publish-title" placeholder="输入选题标题">
+      </div>
+      <div class="form-field">
+        <label>简介描述</label>
+        <textarea id="publish-description" rows="4" placeholder="简要描述本次选题内容和要求"></textarea>
+      </div>
+      <div class="form-field">
+        <label>选题权益与要求 <span style="font-size:12px;color:var(--text-light)">（发布日期、话题、内容要求、激励规则等）</span></label>
+        <textarea id="pub-requirements" rows="6" class="form-input" placeholder="例如：&#10;笔记发布日期：5月30日——6月7日&#10;必带话题：#游戏IF剧场 #用游戏打开六一&#10;激励规则：TOP1-3 1500元 / TOP4-10 1000元"></textarea>
+      </div>
+      <div class="form-field">
+        <label>选题方向 <span style="font-size:12px;color:var(--text-light)">（每个方向可添加标题、解析和参考笔记）</span></label>
+        <div id="pub-directions-list"></div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="addDirection('pub')" style="margin-top:8px">＋ 添加选题方向</button>
+      </div>
+      <div class="form-field">
+        <label>权益/奖励 <span style="color:var(--text-light); font-weight:400;">（选填）</span></label>
+        <input type="text" id="publish-benefits" placeholder="如：曝光资源、现金激励等">
+      </div>
+      <div class="form-field">
+        <label>截止时间 <span style="color:var(--text-light); font-weight:400;">（选填）</span></label>
+        <input type="date" id="publish-deadline">
+      </div>
+      <div class="form-field">
+        <label>封面图 <span style="color:var(--text-light);font-weight:400">（选填，建议 16:9）</span></label>
+        <div id="pub-cover-box" onclick="document.getElementById('pub-cover-input').click()" style="cursor:pointer;border:2px dashed var(--border);border-radius:12px;overflow:hidden;background:#fafafa;min-height:100px;display:flex;align-items:center;justify-content:center;position:relative;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+          <input type="file" id="pub-cover-input" accept="image/*" style="display:none" onchange="onCoverChange(this,'pub')" />
+          <div id="pub-cover-placeholder" style="text-align:center;color:var(--text-light);padding:20px">
+            <div style="font-size:28px;margin-bottom:6px">🖼️</div>
+            <div style="font-size:13px">点击上传封面图</div>
+          </div>
+          <img id="pub-cover-preview" src="" style="display:none;width:100%;max-height:180px;object-fit:cover" />
+        </div>
+        <div style="margin-top:6px;display:flex;gap:8px;align-items:center">
+          <input class="form-input" id="pub-cover-url-input" placeholder="或直接输入图片URL" style="flex:1;height:32px;font-size:13px" oninput="onCoverUrlInput(this,'pub')" />
+          <button class="btn btn-ghost btn-sm" type="button" onclick="clearCover('pub')">✕ 清除</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="publish-submit-btn" style="margin-top:8px;" onclick="doPublishTopic()">发布选题</button>
+    </div>
+  </div>
+
+  <!-- ── Review Tab ── -->
+  <div class="tab-panel" id="tab-review">
+    <div class="section-header">
+      <span class="section-title">报名审核</span>
+    </div>
+    <div class="filter-bar" id="review-filters">
+      <div class="filter-group">
+        <span class="filter-pill active" data-group="r-status" data-value="">全部</span>
+        <span class="filter-pill" data-group="r-status" data-value="pending">待审核 <span id="pending-count-badge" style="background:#F59E0B;color:white;border-radius:999px;padding:0 6px;font-size:10px;margin-left:2px;"></span></span>
+        <span class="filter-pill" data-group="r-status" data-value="approved">已通过</span>
+        <span class="filter-pill" data-group="r-status" data-value="rejected">已拒绝</span>
+      </div>
+      <div class="filter-group">
+        <span class="filter-pill active" data-group="r-type" data-value="">全部</span>
+        <span class="filter-pill" data-group="r-type" data-value="existing">📹 已有作品</span>
+        <span class="filter-pill" data-group="r-type" data-value="draft">📝 脚本思路</span>
+      </div>
+      <div class="filter-group">
+        <select class="filter-select" id="review-topic-filter">
+          <option value="">全部选题</option>
+        </select>
+      </div>
+    </div>
+    <div id="review-list"></div>
+  </div>
+
+  <!-- ── Stats Tab ── -->
+  <div class="tab-panel" id="tab-stats">
+    <!-- 选题统计汇总 -->
+    <div class="table-card" style="margin-bottom:20px">
+      <div class="table-header">
+        <span class="section-title">📊 选题/企划报名统计</span>
+        <button class="btn btn-ghost" id="export-csv-btn">⬇️ 导出 CSV</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="stats-table">
+          <thead>
+            <tr>
+              <th>选题标题</th>
+              <th>类型</th>
+              <th>状态</th>
+              <th>报名总数</th>
+              <th>待审核</th>
+              <th>已通过</th>
+              <th>已拒绝</th>
+              <th>📝 脚本</th>
+              <th>📹 作品</th>
+            </tr>
+          </thead>
+          <tbody id="stats-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- 已通过笔记数据 -->
+    <div class="table-card" style="margin-top:20px">
+      <div class="table-header" style="flex-wrap:wrap;gap:12px">
+        <span class="section-title"> 已通过笔记数据明细</span>
+        <div class="filter-group" id="notes-type-filter" style="display:flex;gap:4px;align-items:center">
+          <span class="filter-pill active" data-notes-type="">全部</span>
+          <span class="filter-pill" data-notes-type="topic">选题</span>
+          <span class="filter-pill" data-notes-type="plan">企划</span>
+          <span class="filter-pill" data-notes-type="trend">趋势</span>
+        </div>
+      </div>
+      <div id="approved-notes-list" style="padding:0 20px 20px"></div>
+    </div>
+  </div>
+
+  <!-- ── Creators Tab ── -->
+  <!-- 注册审核 tab -->
+  <div class="tab-panel" id="tab-reg-review">
+    <div class="table-card">
+      <div class="table-header">
+        <span class="section-title">🔍 注册审核名单</span>
+      </div>
+      <div style="display:flex;gap:8px;padding:0 0 16px;flex-wrap:wrap;">
+        <button class="filter-tab active" data-val="pending" onclick="setRegFilter('pending',this)">待审核</button>
+        <button class="filter-tab" data-val="approved" onclick="setRegFilter('approved',this)">已通过</button>
+        <button class="filter-tab" data-val="rejected" onclick="setRegFilter('rejected',this)">已拒绝</button>
+        <button class="filter-tab" data-val="" onclick="setRegFilter('',this)">全部</button>
+      </div>
+      <div id="reg-review-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;"></div>
+    </div>
+  </div>
+
+  <!-- 创作者管理 tab -->
+  <div class="tab-panel" id="tab-creators">
+    <div class="table-card">
+      <div class="table-header" style="flex-wrap:wrap;gap:12px">
+        <span class="section-title">创作者管理</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="filter-tab active" onclick="setCreatorFilter('all',this)">全部</button>
+          <button class="filter-tab" onclick="setCreatorFilter('pending',this)">待审核</button>
+          <button class="filter-tab" onclick="setCreatorFilter('approved',this)">已通过</button>
+          <button class="filter-tab" onclick="setCreatorFilter('rejected',this)">有问题</button>
+        </div>
+      </div>
+      <div id="creators-list" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- Edit Drawer Overlay -->
+<div class="edit-overlay" id="edit-overlay">
+  <div class="edit-drawer" id="edit-drawer">
+    <button class="drawer-close" id="drawer-close-btn">✕</button>
+    <h3>✏️ 编辑选题</h3>
+    <div class="alert alert-success" id="edit-success">✅ 保存成功</div>
+    <div class="alert alert-error" id="edit-error">保存失败，请重试</div>
+    <div class="form-field">
+      <label>类型</label>
+      <div class="type-toggle">
+        <button class="type-btn active" data-type="topic" id="edit-type-topic">选题</button>
+        <button class="type-btn" data-type="plan" id="edit-type-plan">企划</button>
+        <button class="type-btn" data-type="trend" id="edit-type-trend">趋势</button>
+      </div>
+      <input type="hidden" id="edit-type" value="topic">
+    </div>
+    <div class="form-field">
+      <label>来源</label>
+      <select id="edit-source">
+        <option value="operator">运营发起</option>
+        <option value="brand">厂商发起</option>
+        <option value="creator">创作者发起</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>标题 *</label>
+      <input type="text" id="edit-title">
+    </div>
+    <div class="form-field">
+      <label>简介描述</label>
+      <textarea id="edit-description" rows="4"></textarea>
+    </div>
+    <div class="form-field">
+      <label>选题权益与要求 <span style="font-size:12px;color:var(--text-light)">（发布日期、话题、内容要求、激励规则等）</span></label>
+      <textarea id="edit-requirements" rows="6" class="form-input" placeholder="例如：笔记发布日期、必带话题、激励规则等"></textarea>
+    </div>
+    <div class="form-field">
+      <label>选题方向 <span style="font-size:12px;color:var(--text-light)">（每个方向可添加标题、解析和参考笔记）</span></label>
+      <div id="edit-directions-list"></div>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="addDirection('edit')" style="margin-top:8px">＋ 添加选题方向</button>
+    </div>
+    <div class="form-field">
+      <label>权益/奖励</label>
+      <input type="text" id="edit-benefits">
+    </div>
+    <div class="form-field">
+      <label>截止时间</label>
+      <input type="date" id="edit-deadline">
+    </div>
+    <input type="hidden" id="edit-topic-id">
+          <div class="form-field">
+        <label>封面图 <span style="color:var(--text-light);font-weight:400">（选填，建议 16:9）</span></label>
+        <div id="edit-cover-box" onclick="document.getElementById('edit-cover-input').click()" style="cursor:pointer;border:2px dashed var(--border);border-radius:12px;overflow:hidden;background:#fafafa;min-height:100px;display:flex;align-items:center;justify-content:center;position:relative;transition:border-color .2s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+          <input type="file" id="edit-cover-input" accept="image/*" style="display:none" onchange="onCoverChange(this,'edit')" />
+          <div id="edit-cover-placeholder" style="text-align:center;color:var(--text-light);padding:20px">
+            <div style="font-size:28px;margin-bottom:6px">🖼️</div>
+            <div style="font-size:13px">点击上传封面图</div>
+          </div>
+          <img id="edit-cover-preview" src="" style="display:none;width:100%;max-height:180px;object-fit:cover" />
+        </div>
+        <div style="margin-top:6px;display:flex;gap:8px;align-items:center">
+          <input class="form-input" id="edit-cover-url-input" placeholder="或直接输入图片URL" style="flex:1;height:32px;font-size:13px" oninput="onCoverUrlInput(this,'edit')" />
+          <button class="btn btn-ghost btn-sm" type="button" onclick="clearCover('edit')">✕ 清除</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="edit-save-btn" onclick="(async()=>{await doSaveEdit()})()" style="margin-top:8px;">保存修改</button>
+  </div>
+</div>
+
+<script>
+// ── State ──
+const state = {
+  topics: [],
+  submissions: [],
+  creators: [],
+  overviewFilter: { type: '', source: '', status: '' },
+  reviewFilter: { 'r-status': '', 'r-type': '', topic: '' },
+  sortSubAsc: null,
+  publishNotes: [],
+  editNotes: [],
+  pubDirections: [],
+  editDirections: [],
+  notesTypeFilter: '', // '' | 'topic' | 'plan' | 'trend'
+};
+let creatorFilter = 'all';
+const coverUrls = {}; // prefix -> url
+
+// ── API Helper ──
+async function apiFetch(url, options = {}) {
+  const defaults = { credentials: 'include', headers: { 'Content-Type': 'application/json' } };
+  const merged = { ...defaults, ...options, headers: { ...defaults.headers, ...(options.headers || {}) } };
+  const res = await fetch(url, merged);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ── Page Init: 检查是否已登录 ──
+(async function initAuth() {
+  try {
+    const data = await apiFetch('/api/auth/me');
+    if (data.logged_in && (data.role === 'operator' || data.role === 'admin')) {
+      // 已登录，跳过登录页
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('navbar').style.display = 'flex';
+      document.getElementById('tab-nav').style.display = 'flex';
+      document.getElementById('main-content').style.display = 'block';
+      switchTab('overview');
+    }
+  } catch(e) {
+    // 未登录，保持登录页显示
+  }
+})();
+
+// ── Login ──
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+async function doLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  document.getElementById('login-error').classList.remove('show');
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = '登录中…';
+  try {
+    const data = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    });
+    if (data.role === 'operator' || data.role === 'admin') {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('navbar').style.display = 'flex';
+      document.getElementById('tab-nav').style.display = 'flex';
+      document.getElementById('main-content').style.display = 'block';
+      switchTab('overview');
+    } else {
+      throw new Error('not operator');
+    }
+  } catch (e) {
+    document.getElementById('login-error').classList.add('show');
+    btn.disabled = false; btn.textContent = '登录';
+  }
+}
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  try { await apiFetch('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+  location.reload();
+});
+
+// ── Tab Switching ──
+document.querySelectorAll('.tab-nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tab}`));
+  if (tab === 'overview') loadTopics();
+  if (tab === 'review') loadSubmissions();
+  if (tab === 'stats') loadStats();
+  if (tab === 'creators') loadCreators();
+}
+
+document.getElementById('go-publish-btn').addEventListener('click', () => switchTab('publish'));
+
+// ── Keyboard ESC ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDrawer();
+});
+
+// ── Load Topics ──
+async function loadTopics() {
+  const listEl = document.getElementById('overview-list');
+  listEl.innerHTML = '<div class="loading">加载中…</div>';
+  try {
+    const data = await apiFetch('/api/admin/topics');
+    state.topics = data.topics || data || [];
+    renderStats(state.topics);
+    renderTopicList();
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div>加载失败，请刷新重试</div>';
+  }
+}
+
+function renderStats(topics) {
+  const published = topics.filter(t => t.status === 'published').length;
+  const totalSubs = topics.reduce((s, t) => s + (t.sub_count || 0), 0);
+  const approved = topics.reduce((s, t) => s + (t.sub_approved || 0), 0);
+  const content = topics.reduce((s, t) => s + (t.sub_existing || 0), 0);
+  document.getElementById('stat-published').textContent = published;
+  document.getElementById('stat-total-subs').textContent = totalSubs;
+  document.getElementById('stat-approved').textContent = approved;
+  document.getElementById('stat-content').textContent = content;
+}
+
+function renderTopicList() {
+  const f = state.overviewFilter;
+  let list = state.topics;
+  if (f.type) list = list.filter(t => t.type === f.type);
+  if (f.source) list = list.filter(t => t.source === f.source);
+  if (f.status) list = list.filter(t => t.status === f.status);
+  const listEl = document.getElementById('overview-list');
+  if (!list.length) {
+    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>暂无符合条件的选题</div>';
+    return;
+  }
+  listEl.innerHTML = list.map(t => renderTopicCard(t)).join('');
+  attachTopicCardEvents(listEl);
+}
+
+function renderTopicCard(t) {
+  const typeBadge = t.type === 'plan'
+    ? '<span class="badge badge-plan">企划</span>'
+    : '<span class="badge badge-topic">选题</span>';
+  const sourceMap = { operator: '运营', brand: '厂商', creator: '创作者' };
+  const sourceBadge = `<span class="badge badge-source">${sourceMap[t.source] || t.source || '—'}</span>`;
+  const statusBadge = t.status === 'pending' ? '<span class="badge badge-pending">待审核</span>'
+    : t.status === 'published' ? '<span class="badge badge-published">已发布</span>'
+    : '<span class="badge badge-offline">已下架</span>';
+  const toggleLabel = t.status === 'published' ? '⬇️ 下架' : '⬆️ 上架';
+  // 封面缩略图
+  const isOffline = t.status === 'offline';
+  const offlineMaskAdmin = isOffline ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;border-radius:8px;z-index:2;"><span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:2px;padding:4px 10px;border:2px solid rgba(255,255,255,0.7);border-radius:6px;background:rgba(0,0,0,0.3)">已下架</span></div>` : '';
+  const coverThumb = t.cover_url
+    ? `<div style="position:relative;width:120px;flex-shrink:0"><img src="${escHtml(t.cover_url)}" style="width:120px;max-height:140px;object-fit:contain;border-radius:8px;background:#f3f4f6;display:block;${isOffline ? 'filter:grayscale(50%)' : ''}" onerror="this.style.display='none'" alt="" />${offlineMaskAdmin}</div>`
+    : `<div style="position:relative;width:120px;height:90px;border-radius:8px;background:#e5e7eb;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px">🎮${offlineMaskAdmin}</div>`;
+  return `
+  <div class="topic-card" data-id="${t.id}">
+    <div style="display:flex;gap:14px;flex:1;min-width:0">
+      ${coverThumb}
+      <div class="topic-card-left" style="cursor:pointer;min-width:0" onclick="openTopicDetail(${t.id})" title="点击查看详情">
+        <div class="topic-card-title" style="display:flex;align-items:center;gap:6px">${escHtml(t.title)}<span style="font-size:11px;color:var(--primary);opacity:.7">↗︎</span></div>
+        <div class="topic-card-badges">${typeBadge}${sourceBadge}${statusBadge}</div>
+        <div class="topic-card-desc">${escHtml(t.description || '暂无描述')}</div>
+      </div>
+    </div>
+    <div class="topic-card-right">
+      <div class="topic-stats-grid">
+        <div class="topic-stat-cell">
+          <div class="topic-stat-num">${t.sub_count || 0}</div>
+          <div class="topic-stat-label">报名</div>
+        </div>
+        <div class="topic-stat-cell">
+          <div class="topic-stat-num orange">${t.sub_pending || 0}</div>
+          <div class="topic-stat-label">待审</div>
+        </div>
+        <div class="topic-stat-cell">
+          <div class="topic-stat-num green">${t.sub_approved || 0}</div>
+          <div class="topic-stat-label">已通过</div>
+        </div>
+        <div class="topic-stat-cell">
+          <div class="topic-stat-num red">${t.sub_rejected || 0}</div>
+          <div class="topic-stat-label">已拒绝</div>
+        </div>
+        <div class="topic-stat-cell">
+          <div class="topic-stat-num">${t.sub_draft || 0}</div>
+          <div class="topic-stat-label">脚本思路</div>
+        </div>
+        <div class="topic-stat-cell">
+          <div class="topic-stat-num">${t.sub_existing || 0}</div>
+          <div class="topic-stat-label">已有作品</div>
+        </div>
+      </div>
+      <div class="topic-actions">
+        <button class="btn btn-ghost btn-sm" data-action="manage-subs" data-id="${t.id}">👥 管理报名</button>
+        <button class="btn btn-ghost btn-sm" data-action="edit" data-id="${t.id}">✏️ 编辑</button>
+        <button class="btn btn-ghost btn-sm" data-action="toggle-status" data-id="${t.id}" data-status="${t.status}">${toggleLabel}</button>
+        <button class="btn btn-outline-danger btn-sm" data-action="delete" data-id="${t.id}">🗑️ 删除</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function attachTopicCardEvents(container) {
+  container.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      if (action === 'edit') openEditDrawer(id);
+      if (action === 'delete') await doDeleteTopic(id, btn);
+      if (action === 'toggle-status') await doToggleStatus(id, btn.dataset.status, btn);
+      if (action === 'manage-subs') {
+        state.reviewFilter['r-status'] = '';
+        state.reviewFilter['r-type'] = '';
+        state.reviewFilter.topic = id;
+        switchTab('review');
+        document.getElementById('review-topic-filter').value = id;
+      }
+    });
+  });
+}
+
+async function doDeleteTopic(id, btn) {
+  if (!confirm('确定要删除此选题吗？此操作不可撤销。')) return;
+  try {
+    await apiFetch(`/api/topics/${id}`, { method: 'DELETE' });
+    const card = btn.closest('.topic-card');
+    card.style.opacity = '0'; card.style.transition = 'opacity .3s';
+    setTimeout(() => {
+      state.topics = state.topics.filter(t => String(t.id) !== String(id));
+      card.remove();
+      renderStats(state.topics);
+    }, 300);
+  } catch (e) { alert('删除失败，请重试'); }
+}
+
+async function doToggleStatus(id, currentStatus, btn) {
+  const newStatus = currentStatus === 'published' ? 'offline' : 'published';
+  try {
+    await apiFetch(`/api/topics/${id}/status`, { method: 'PUT', body: JSON.stringify({ status: newStatus }) });
+    const topic = state.topics.find(t => String(t.id) === String(id));
+    if (topic) { topic.status = newStatus; }
+    renderTopicList();
+  } catch (e) { alert('操作失败，请重试'); }
+}
+
+// ── Overview Filters ──
+document.getElementById('overview-filters').addEventListener('click', e => {
+  const pill = e.target.closest('.filter-pill');
+  if (!pill) return;
+  const group = pill.dataset.group;
+  const value = pill.dataset.value;
+  document.querySelectorAll(`.filter-pill[data-group="${group}"]`).forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  state.overviewFilter[group] = value;
+  renderTopicList();
+});
+
+// ── Load Submissions ──
+async function loadSubmissions() {
+  const listEl = document.getElementById('review-list');
+  listEl.innerHTML = '<div class="loading">加载中…</div>';
+  try {
+    const [subData, topicData] = await Promise.all([
+      apiFetch('/api/submissions'),
+      apiFetch('/api/admin/topics')
+    ]);
+    state.submissions = subData.submissions || subData || [];
+    state.topics = topicData.topics || topicData || [];
+    // Populate topic filter
+    const sel = document.getElementById('review-topic-filter');
+    sel.innerHTML = '<option value="">全部选题</option>';
+    state.topics.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id; opt.textContent = t.title;
+      if (String(state.reviewFilter.topic) === String(t.id)) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    // Update pending count
+    const pendingCount = state.submissions.filter(s => s.status === 'pending').length;
+    const badge = document.getElementById('pending-count-badge');
+    badge.textContent = pendingCount > 0 ? pendingCount : '';
+    renderSubmissions();
+  } catch (e) {
+    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div>加载失败，请刷新重试</div>';
+  }
+}
+
+function renderSubmissions() {
+  const f = state.reviewFilter;
+  let list = state.submissions;
+  if (f['r-status']) list = list.filter(s => s.status === f['r-status']);
+  if (f['r-type']) list = list.filter(s => s.submit_type === f['r-type']);
+  if (f.topic) list = list.filter(s => String(s.topic_id) === String(f.topic));
+  // 分离运营添加的投稿和真实创作者投稿
+  const operatorSubs = list.filter(s => (s.contact||'').includes('运营添加') || (s.creator_name||'').includes('运营添加'));
+  const realSubs = list.filter(s => !((s.contact||'').includes('运营添加') || (s.creator_name||'').includes('运营添加')));
+  const listEl = document.getElementById('review-list');
+  if (!realSubs.length && !operatorSubs.length) {
+    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon"></div>暂无符合条件的报名</div>';
+    return;
+  }
+  let html = '';
+  // 真实创作者投稿
+  if (realSubs.length) {
+    html += realSubs.map(s => renderSubmissionCard(s)).join('');
+  }
+  // 运营添加的示例投稿
+  if (operatorSubs.length) {
+    html += '<div style="margin:20px 0 10px;font-size:14px;font-weight:600;color:var(--primary);display:flex;align-items:center;gap:8px"><span>📌 运营添加示例</span><span style="font-size:12px;color:var(--text-light);font-weight:400">（'+operatorSubs.length+'条，仅前端展示）</span></div>';
+    html += operatorSubs.map(s => renderOperatorSubCard(s)).join('');
+  }
+  listEl.innerHTML = html;
+  attachSubmissionCardEvents(listEl);
+}
+
+function renderOperatorSubCard(s) {
+  const coverHtml = s.cover_url
+    ? '<div style="width:60px;height:60px;border-radius:8px;overflow:hidden;flex-shrink:0"><img src="'+escHtml(s.cover_url)+'" style="width:100%;height:100%;object-fit:cover" alt="" onerror="this.parentElement.style.display=\'none\'"></div>'
+    : '';
+  return '<div class="submission-card" style="opacity:.85;cursor:default;border-left:3px solid var(--primary)" data-id="'+s.id+'" onclick="openSubmissionDetail('+s.id+')">'
+    + '<div style="display:flex;gap:10px;align-items:center">'
+    + coverHtml
+    + '<div style="flex:1;min-width:0">'
+    + '<div style="font-weight:600;font-size:15px;color:var(--text-main)">'+escHtml(s.title||'笔记 '+escHtml(s.note_id||''))+'</div>'
+    + '<div style="font-size:13px;color:var(--text-sub);margin-top:2px">创作者：'+escHtml(s.creator_name||s.contact||'运营添加')+'</div>'
+    + '<div style="font-size:12px;color:var(--text-light);margin-top:4px">ID：'+escHtml(s.note_id||'')+' | ❤️ '+escHtml(String(s.likes||0))+'</div>'
+    + '</div>'
+    + '<div style="flex-shrink:0"><a class="btn btn-outline btn-sm" href="https://www.xiaohongshu.com/explore/'+escHtml(s.note_id||'')+'" target="_blank">查看笔记</a></div>'
+    + '</div></div>';
+}
+
+function renderSubmissionCard(s) {
+  const typeBadge = s.submit_type === 'existing'
+    ? '<span class="badge badge-existing">📹 已有作品</span>'
+    : '<span class="badge badge-draft">📝 脚本思路</span>';
+  const statusMap = { pending: 'badge-pending', approved: 'badge-approved', rejected: 'badge-rejected' };
+  const statusTextMap = { pending: '待审核', approved: '已通过', rejected: '已拒绝' };
+  const statusBadge = `<span class="badge ${statusMap[s.status] || 'badge-pending'}">${statusTextMap[s.status] || s.status}</span>`;
+  const topicName = (state.topics.find(t => String(t.id) === String(s.topic_id)) || {}).title || '';
+  let contentHtml = '';
+  if (s.submit_type === 'existing') {
+    const noteLink = s.note_link ? `<a href="${s.note_link}" target="_blank">🔗 笔记链接</a>` : '';
+    const homeLink = s.profile_link ? `<a href="${s.profile_link}" target="_blank">🏠 主页链接</a>` : '';
+    contentHtml = `<div class="submission-links">${noteLink}${homeLink}</div>`;
+  } else {
+    const contact = s.contact ? `<div class="submission-contact">📱 联系方式：${escHtml(s.contact)}</div>` : '';
+    const script = s.draft_content ? `
+      <button class="submission-script-toggle" data-action="toggle-script">展开脚本内容</button>
+      <div class="submission-script-content">${escHtml(s.draft_content)}</div>` : '';
+    contentHtml = contact + script;
+  }
+  const actionBtns = s.status === 'pending' ? `
+    <div class="submission-actions">
+      <button class="btn btn-success btn-sm" data-action="approve" data-id="${s.id}">✅ 通过</button>
+      <button class="btn btn-danger btn-sm" data-action="reject" data-id="${s.id}">❌ 拒绝</button>
+    </div>` : '';
+  const subNum = s.submission_number ? `<span class="badge" style="background:var(--primary-light);color:var(--primary);margin-left:6px">第${s.submission_number}次</span>` : '';
+  return `
+  <div class="submission-card" data-id="${s.id}" onclick="openSubmissionDetail(${s.id})">
+    <div class="submission-top">
+      <div class="submission-top-left">${typeBadge}${statusBadge}${subNum}</div>
+      <div class="submission-top-right">${escHtml(topicName)}</div>
+    </div>
+    <div class="submission-author">${escHtml(s.creator_name || s.display_name || '匿名用户')}<span>${s.uid ? '· ' + escHtml(String(s.uid)) : ''}</span></div>
+    ${contentHtml}
+    ${actionBtns}
+  </div>`;
+}
+
+function attachSubmissionCardEvents(container) {
+  container.querySelectorAll('[data-action="approve"]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); doReview(btn.dataset.id, 'approved', btn); });
+  });
+  container.querySelectorAll('[data-action="reject"]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); doReview(btn.dataset.id, 'rejected', btn); });
+  });
+  container.querySelectorAll('[data-action="toggle-script"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const content = btn.nextElementSibling;
+      const expanded = content.classList.toggle('expanded');
+      btn.textContent = expanded ? '收起' : '展开脚本内容';
+    });
+  });
+}
+
+async function doReview(id, status, btn) {
+  btn.disabled = true;
+  try {
+    await apiFetch(`/api/submissions/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
+    const card = btn.closest('.submission-card');
+    card.style.opacity = '0'; card.style.transition = 'opacity .3s';
+    setTimeout(() => {
+      state.submissions = state.submissions.filter(s => String(s.id) !== String(id));
+      card.remove();
+      // Update pending count
+      const pendingCount = state.submissions.filter(s => s.status === 'pending').length;
+      const badge = document.getElementById('pending-count-badge');
+      badge.textContent = pendingCount > 0 ? pendingCount : '';
+      if (!document.getElementById('review-list').querySelector('.submission-card')) {
+        document.getElementById('review-list').innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>暂无符合条件的报名</div>';
+      }
+    }, 300);
+  } catch (e) { btn.disabled = false; alert('操作失败，请重试'); }
+}
+
+
+// ── 投稿详情 ──
+function openSubmissionDetail(id) {
+  const s = state.submissions.find(x => String(x.id) === String(id));
+  if (!s) { alert('找不到投稿数据'); return; }
+  const topic = state.topics.find(t => String(t.id) === String(s.topic_id));
+  const topicName = topic ? topic.title : '';
+  const topicDesc = topic ? (topic.description || '') : '';
+  const submitDate = s.created_at ? new Date(s.created_at).toLocaleDateString('zh-CN') : '';
+  const statusMap = { pending: { cls: 'badge-pending', text: '待审核' }, approved: { cls: 'badge-approved', text: '已通过' }, rejected: { cls: 'badge-rejected', text: '已拒绝' } };
+  const st = statusMap[s.status] || statusMap.pending;
+  const creatorName = escHtml(s.creator_name || s.display_name || '匿名用户');
+  const uid = s.uid ? escHtml(String(s.uid)) : '';
+  const avatarLetter = creatorName.charAt(0) || '?';
+
+  let contentHtml = '';
+  if (s.submit_type === 'existing') {
+    const coverImg = s.cover_url
+      ? `<img src="${s.cover_url}" alt="封面" style="width:100%;max-width:280px;border-radius:16px;object-fit:contain;box-shadow:0 4px 16px rgba(0,0,0,0.1)" />`
+      : `<div style="width:280px;height:168px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:0 4px 16px rgba(0,0,0,0.1)"></div>`;
+    contentHtml = `
+      <div style="background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+          <div style="flex:0 0 auto">${coverImg}</div>
+          <div style="flex:1;min-width:200px">
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <span class="badge badge-existing" style="font-size:13px;padding:6px 14px">📹 已有作品</span>
+            </div>
+            <div style="font-size:17px;font-weight:600;margin-bottom:8px;line-height:1.5">${s.note_title ? escHtml(s.note_title) : '未提供标题'}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:12px">
+              ${s.likes != null ? `<span style="font-size:14px;color:var(--text-sub)">❤️ ${s.likes} 点赞</span>` : ''}
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              ${s.note_link ? `<a href="${s.note_link}" target="_blank" class="btn-sm btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">🔗 查看笔记</a>` : ''}
+              ${s.profile_link ? `<a href="${s.profile_link}" target="_blank" class="btn-sm btn-outline" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">🏠 作者主页</a>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  } else {
+    const script = s.draft_content
+      ? `<div style="background:#f8f9fb;border-radius:16px;padding:20px;white-space:pre-wrap;font-size:15px;line-height:1.8;color:var(--text-main);border:1px solid #e8eaed">${escHtml(s.draft_content)}</div>`
+      : '<div style="color:var(--text-light);font-style:italic">未填写脚本内容</div>';
+    contentHtml = `
+      <div style="background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+          <span class="badge badge-draft" style="font-size:13px;padding:6px 14px">📝 脚本思路</span>
+        </div>
+        ${s.contact ? `<div style="margin-bottom:16px;font-size:14px;color:var(--text-sub)">📧 联系方式：${escHtml(s.contact)}</div>` : ''}
+        <div style="font-size:15px;font-weight:600;margin-bottom:12px">脚本内容</div>
+        ${script}
+      </div>`;
+  }
+
+  const rejectHtml = s.review_note && s.status === 'rejected' ? `
+    <div style="background:linear-gradient(135deg,#FEE2E2,#FECACA);border-radius:20px;padding:20px 24px;margin-bottom:20px;border:1px solid #FCA5A5">
+      <div style="font-size:15px;font-weight:600;color:#DC2626;margin-bottom:8px">❌ 拒绝原因</div>
+      <div style="font-size:14px;color:#991B1B;line-height:1.7">${escHtml(s.review_note)}</div>
+    </div>` : '';
+
+  const suggestionHtml = s.review_note && s.status === 'approved' ? `
+    <div style="background:linear-gradient(135deg,#D1FAE5,#A7F3D0);border-radius:20px;padding:20px 24px;margin-bottom:20px;border:1px solid #6EE7B7">
+      <div style="font-size:15px;font-weight:600;color:#059669;margin-bottom:8px">💡 运营建议</div>
+      <div style="font-size:14px;color:#065F46;line-height:1.7">${escHtml(s.review_note)}</div>
+    </div>` : '';
+
+  const actionBtns = s.status === 'pending' ? `
+    <div style="display:flex;gap:12px">
+      <button class="btn btn-success" style="padding:10px 28px;font-size:15px;border-radius:12px" onclick="doReviewDetail(${s.id},'approved')">✅ 通过</button>
+      <button class="btn btn-danger" style="padding:10px 28px;font-size:15px;border-radius:12px" onclick="doReviewDetail(${s.id},'rejected')">❌ 拒绝</button>
+    </div>` : '';
+
+  document.getElementById('sub-detail-content').innerHTML = `
+    <\!-- 创作者信息卡片 -->
+    <div style="background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--purple));display:flex;align-items:center;justify-content:center;color:white;font-size:22px;font-weight:700;flex:0 0 auto">${avatarLetter}</div>
+        <div style="flex:1">
+          <div style="font-size:18px;font-weight:700">${creatorName}</div>
+          ${uid ? `<div style="font-size:13px;color:var(--text-light);margin-top:2px">小红书 UID：${uid}</div>` : ''}
+        </div>
+        <div style="text-align:right">
+          <span class="badge ${st.cls}" style="font-size:14px;padding:8px 18px">${st.text}</span>
+          <div style="font-size:12px;color:var(--text-light);margin-top:4px">${submitDate}</div>
+        </div>
+      </div>
+    </div>
+
+    <\!-- 选题信息卡片 -->
+    <div style="background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px">
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:8px;font-weight:500">报名选题</div>
+      <div style="font-size:17px;font-weight:600;line-height:1.5">${escHtml(topicName)}</div>
+      ${topicDesc ? `<div style="font-size:14px;color:var(--text-sub);margin-top:8px;line-height:1.6">${escHtml(topicDesc).substring(0, 120)}${topicDesc.length > 120 ? '...' : ''}</div>` : ''}
+    </div>
+
+    <\!-- 投稿内容 -->
+    ${contentHtml}
+
+    <\!-- 拒绝原因 / 运营建议 -->
+    ${rejectHtml}
+    ${suggestionHtml}
+
+    <\!-- 操作按钮 -->
+    ${actionBtns}
+
+    <\!-- 运营建议输入框（已审核后显示） -->
+    ${s.status !== 'pending' ? `
+      <div style="margin-top:20px">
+        <label style="font-size:14px;font-weight:600;color:var(--text-sub);margin-bottom:8px;display:block">💬 补充建议（可选）</label>
+        <textarea id="review-suggestion-input" style="width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:14px;font-size:14px;line-height:1.6;resize:vertical;min-height:80px;font-family:inherit" placeholder="给创作者的创作建议..."></textarea>
+        <button class="btn btn-primary" style="margin-top:10px;padding:10px 24px;font-size:14px;border-radius:12px" onclick="doAddSuggestion(${s.id})"> 提交建议</button>
+      </div>` : ''}
+  `;
+
+  document.getElementById('sub-detail-actions').innerHTML = actionBtns;
+  document.getElementById('sub-detail-overlay').classList.add('open');
+}
+
+function closeSubDetail() {
+  document.getElementById('sub-detail-overlay').classList.remove('open');
+}
+
+function doAddSuggestion(id) {
+  const input = document.getElementById('review-suggestion-input');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) { alert('请填写建议内容'); return; }
+  const btn = input.nextElementSibling;
+  btn.disabled = true; btn.textContent = '提交中…';
+  apiFetch(`/api/submissions/${id}/suggestion`, {
+    method: 'PUT',
+    body: JSON.stringify({ suggestion: text })
+  }).then(() => {
+    alert('✅ 建议已提交');
+    input.value = '';
+    btn.disabled = false; btn.textContent = ' 提交建议';
+  }).catch(e => {
+    alert('提交失败：' + e.message);
+    btn.disabled = false; btn.textContent = ' 提交建议';
+  });
+}
+
+
+async function doReviewDetail(id, status) {
+  const s = state.submissions.find(x => String(x.id) === String(id));
+  if (!s) return;
+  if (status === 'rejected') {
+    const reason = prompt('请输入拒绝原因：');
+    if (reason === null) return;
+    try {
+      await apiFetch(`/api/submissions/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status, review_note: reason })
+      });
+      s.status = status;
+      s.review_note = reason;
+      openSubmissionDetail(id); // 刷新详情
+      loadSubmissions(); // 刷新列表
+    } catch(e) { alert('操作失败'); }
+  } else {
+    try {
+      await apiFetch(`/api/submissions/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status })
+      });
+      s.status = status;
+      closeSubDetail();
+      loadSubmissions();
+    } catch(e) { alert('操作失败'); }
+  }
+}
+
+// ── Review Filters ──
+document.getElementById('review-filters').addEventListener('click', e => {
+  const pill = e.target.closest('.filter-pill');
+  if (!pill) return;
+  const group = pill.dataset.group;
+  const value = pill.dataset.value;
+  document.querySelectorAll(`.filter-pill[data-group="${group}"]`).forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  state.reviewFilter[group] = value;
+  renderSubmissions();
+});
+
+document.getElementById('review-topic-filter').addEventListener('change', function() {
+  state.reviewFilter.topic = this.value;
+  renderSubmissions();
+});
+
+// ── Notes Type Filter (in Stats tab) ──
+document.getElementById('notes-type-filter').addEventListener('click', e => {
+  const p = e.target.closest('.filter-pill[data-notes-type]');
+  if (!p) return;
+  document.querySelectorAll('#notes-type-filter .filter-pill').forEach(x => x.classList.remove('active'));
+  p.classList.add('active');
+  state.notesTypeFilter = p.dataset.notesType;
+  renderApprovedNotes();
+});
+
+// ── Stats ──
+async function loadStats() {
+  const tbody = document.getElementById('stats-tbody');
+  tbody.innerHTML = '<tr><td colspan="9" class="loading">加载中…</td></tr>';
+  try {
+    const [topicsData, subsData] = await Promise.all([
+      apiFetch('/api/admin/topics'),
+      apiFetch('/api/submissions')
+    ]);
+    state.topics = topicsData.topics || topicsData || [];
+    state.submissions = subsData || [];
+    renderStatsTable();
+    renderApprovedNotes();
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-light);padding:40px">加载失败</td></tr>';
+  }
+}
+
+function renderStatsTable() {
+  const tbody = document.getElementById('stats-tbody');
+  const typeMap = { topic: '选题', plan: '企划', trend: '趋势' };
+  const statusMap = { published: '<span class="badge badge-published">已发布</span>', offline: '<span class="badge badge-offline">已下架</span>', pending: '<span class="badge badge-pending">待审</span>' };
+  tbody.innerHTML = state.topics.map(t => {
+    const subs = state.submissions.filter(s => String(s.topic_id) === String(t.id));
+    const total = subs.length;
+    const pending = subs.filter(s => s.status === 'pending').length;
+    const approved = subs.filter(s => s.status === 'approved').length;
+    const rejected = subs.filter(s => s.status === 'rejected').length;
+    const drafts = subs.filter(s => s.submit_type === 'draft').length;
+    const existing = subs.filter(s => s.submit_type === 'existing').length;
+    return `<tr>
+      <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.title)}</td>
+      <td>${typeMap[t.type] || t.type}</td>
+      <td>${statusMap[t.status] || t.status}</td>
+      <td style="font-weight:600;">${total}</td>
+      <td><span style="color:#F59E0B;font-weight:600;">${pending}</span></td>
+      <td><span style="color:var(--success);font-weight:600;">${approved}</span></td>
+      <td><span style="color:var(--danger);font-weight:600;">${rejected}</span></td>
+      <td>${drafts}</td>
+      <td>${existing}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-light);padding:40px">暂无数据</td></tr>';
+}
+
+function renderApprovedNotes() {
+  const container = document.getElementById('approved-notes-list');
+  if (!container) return;
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-light)">加载中...</div>';
+  try {
+    let approved = state.submissions.filter(s => s.status === 'approved' && s.submit_type === 'existing');
+    if (state.notesTypeFilter) {
+      const topicIds = state.topics.filter(t => t.type === state.notesTypeFilter).map(t => String(t.id));
+      approved = approved.filter(s => topicIds.includes(String(s.topic_id)));
+    }
+    if (!approved.length) {
+      const label = state.notesTypeFilter ? ({topic:'选题',plan:'企划',trend:'趋势'}[state.notesTypeFilter]||'') : '';
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon"></div>暂无已通过笔记数据' + (label ? '（'+label+'）' : '') + '</div>';
+      return;
+    }
+    // 按 topic_id 分组
+    const byTopic = {};
+    approved.forEach(s => {
+      const tid = String(s.topic_id);
+      if (!byTopic[tid]) byTopic[tid] = [];
+      byTopic[tid].push(s);
+    });
+    // 获取 topic 信息并排序
+    const topicGroups = Object.entries(byTopic).map(([tid, subs]) => {
+      const topic = state.topics.find(t => String(t.id) === tid) || {};
+      return { tid, topic, subs, count: subs.length };
+    }).sort((a, b) => b.count - a.count); // 按笔记数降序
+    // 获取所有笔记详情
+    const allNoteIds = approved.map(s => s.note_id).filter(Boolean);
+    Promise.all(allNoteIds.map(async (nid) => {
+      try {
+        const r = await fetch('/api/fetch_note?note_id=' + encodeURIComponent(nid), {credentials:'include'});
+        if (r.ok) return { nid, ...await r.json() };
+      } catch(e) {}
+      return { nid };
+    })).then(results => {
+      const noteInfoMap = {};
+      results.forEach(r => { if (r.nid) noteInfoMap[r.nid] = r; });
+      let html = '';
+      topicGroups.forEach(({ tid, topic, subs, count }) => {
+        const typeLabel = topic.type === 'plan' ? '🏆 企划' : topic.type === 'trend' ? '📈 趋势' : '💡 选题';
+        const typeColor = topic.type === 'plan' ? '#f59e0b' : topic.type === 'trend' ? '#10b981' : '#3b82f6';
+        html += '<div style="margin-bottom:28px">';
+        html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid '+typeColor+'20">';
+        html += '<span style="font-size:18px;font-weight:700;color:var(--text-main)">'+escHtml(topic.title || '未知选题')+'</span>';
+        html += '<span style="font-size:12px;padding:2px 10px;border-radius:12px;background:'+typeColor+'15;color:'+typeColor+';font-weight:600">'+typeLabel+'</span>';
+        html += '<span style="font-size:12px;color:var(--text-light)">共 '+count+' 篇笔记</span>';
+        html += '</div>';
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
+        subs.forEach(s => {
+          const noteInfo = noteInfoMap[s.note_id] || {};
+          const coverUrl = noteInfo.cover || s.cover_url || '';
+          const title = noteInfo.title || s.note_title || '未知笔记';
+          const likes = noteInfo.likes != null ? noteInfo.likes : (s.likes || 0);
+          const duration = noteInfo.duration || '--';
+          const maleRatio = noteInfo.male_ratio != null ? (noteInfo.male_ratio * 100).toFixed(1) + '%' : '--';
+          const noteUrl = s.note_link || (s.note_id ? 'https://www.xiaohongshu.com/explore/' + s.note_id : '');
+          html += '<div class="approved-note-card" onclick="window.open(\''+noteUrl+'\',\'_blank\')" style="cursor:pointer;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .2s">';
+          html += coverUrl ? '<img src="'+coverUrl+'" style="width:100%;height:140px;object-fit:cover" onerror="this.style.display=\'none\'"/>' : '';
+          html += '<div style="padding:12px">';
+          html += '<div style="font-weight:600;font-size:13px;margin-bottom:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+escHtml(title)+'</div>';
+          html += '<div style="display:flex;gap:10px;font-size:12px;color:var(--text-light);margin-bottom:6px">';
+          html += '<span>❤️ '+likes+'</span><span>⏱ '+duration+'</span>';
+          html += '</div>';
+          html += '<div style="font-size:12px;color:var(--text-light)">创作者：'+escHtml(s.creator_name || s.display_name || '匿名')+'</div>';
+          html += '</div></div>';
+        });
+        html += '</div></div>';
+      });
+      container.innerHTML = html;
+    });
+  } catch(e) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">️</div>加载失败</div>';
+  }
+}
+
+const sortBtn = document.getElementById('sort-sub-count'); if(sortBtn) sortBtn.addEventListener('click', function() {
+  if (state.sortSubAsc === null || !state.sortSubAsc) {
+    state.sortSubAsc = true; this.textContent = '报名 ↑';
+  } else {
+    state.sortSubAsc = false; this.textContent = '报名 ↓';
+  }
+  renderStatsTable();
+});
+
+document.getElementById('export-csv-btn').addEventListener('click', () => {
+  if (!state.topics.length) return;
+  const headers = ['选题标题','类型','状态','报名总数','待审核','已通过','已拒绝','脚本','作品'];
+  const typeMap = { topic: '选题', plan: '企划', trend: '趋势' };
+  const statusMap = { published: '已发布', offline: '已下架', pending: '待审' };
+  const rows = state.topics.map(t => {
+    const subs = state.submissions.filter(s => String(s.topic_id) === String(t.id));
+    return [
+      t.title, typeMap[t.type] || t.type, statusMap[t.status] || t.status,
+      subs.length,
+      subs.filter(s=>s.status==='pending').length,
+      subs.filter(s=>s.status==='approved').length,
+      subs.filter(s=>s.status==='rejected').length,
+      subs.filter(s=>s.submit_type==='draft').length,
+      subs.filter(s=>s.submit_type==='existing').length
+    ];
+  });
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `IF剧场数据_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+});
+
+// ── Creators ──
+// ── 注册审核 ──
+let regFilter = 'pending';
+
+function setRegFilter(val, btn) {
+  regFilter = val;
+  document.querySelectorAll('#reg-review-list').forEach(()=>{});
+  document.querySelectorAll('[onclick*="setRegFilter"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadRegReview();
+}
+
+async function loadRegReview() {
+  const list = document.getElementById('reg-review-list');
+  list.innerHTML = '<div style="color:var(--text-light);padding:20px">加载中…</div>';
+  const qs = regFilter ? `?role=creator&verify_status=${regFilter}` : '?role=creator';
+  const data = await apiFetch('/api/admin/users' + qs);
+  const users = data.users || data || [];
+  if (!users.length) {
+    list.innerHTML = '<div style="color:var(--text-light);padding:20px">暂无' + (regFilter==='pending'?'待审核':regFilter==='approved'?'已通过':'已拒绝') + '记录</div>';
+    return;
+  }
+  list.innerHTML = users.map(u => `
+    <div class="card" style="padding:16px;" data-reg-id="${u.id}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-weight:600;font-size:15px">${escHtml(u.display_name||u.username)}</span>
+        <span class="badge ${u.verify_status==='pending'?'badge-pending':u.verify_status==='approved'?'badge-approved':'badge-rejected'}">
+          ${u.verify_status==='pending'?'待审核':u.verify_status==='approved'?'✅ 已通过':'❌ 已拒绝'}
+        </span>
+      </div>
+      <div style="font-size:13px;color:var(--text-light);margin-bottom:6px">注册时间：${u.created_at||'—'}</div>
+      ${u.xhs_profile_url ? `<div style="margin-bottom:8px"><a href="${escHtml(u.xhs_profile_url)}" target="_blank" style="color:#E63E6D;font-size:13px">🔗 查看小红书主页</a></div>` : ''}
+      ${u.xhs_screenshot ? `<div style="margin-bottom:10px"><img src="${escHtml(u.xhs_screenshot)}" style="width:100%;max-height:180px;object-fit:contain;border-radius:8px;border:1px solid var(--border)" onerror="this.style.display='none'"></div>` : '<div style="color:#999;font-size:12px;margin-bottom:10px">未上传截图</div>'}
+      ${u.verify_status==='pending' ? `
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-success" style="flex:1" onclick="verifyUser(${u.id},'approved',this)">✅ 通过</button>
+          <button class="btn btn-danger" style="flex:1" onclick="verifyUser(${u.id},'rejected',this)">❌ 拒绝</button>
+        </div>` : `<div style="font-size:12px;color:var(--text-light);margin-top:4px">${u.verify_note?'备注: '+escHtml(u.verify_note):''}</div>`}
+    </div>
+  `).join('');
+}
+
+async function verifyUser(userId, status, btn) {
+  btn.disabled = true;
+  const r = await apiFetch(`/api/admin/users/${userId}/verify`, {
+    method: 'PUT',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({status})
+  });
+  if (r.ok) {
+    // 更新本地状态后重渲染
+    const u = state.creators.find(c => c.id === userId);
+    if (u) u.verify_status = status;
+    renderCreatorsList();
+  } else {
+    btn.disabled = false;
+    alert(r.error || '操作失败');
+  }
+}
+
+function setCreatorFilter(val, btn) {
+  creatorFilter = val;
+  document.querySelectorAll('[onclick*="setCreatorFilter"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCreatorsList();
+}
+
+async function loadCreators() {
+  const list = document.getElementById('creators-list');
+  list.innerHTML = '<div style="color:var(--text-light);padding:20px">加载中…</div>';
+  try {
+    const data = await apiFetch('/api/admin/users?role=creator');
+    state.creators = Array.isArray(data) ? data : (data.users || []);
+    renderCreatorsList();
+  } catch(e) {
+    console.error('loadCreators error:', e);
+    list.innerHTML = `<div style="color:var(--danger);padding:40px;text-align:center">加载失败：${escHtml(String(e))}<br><span style="font-size:12px;color:var(--text-light)">请确认已以运营身份登录</span></div>`;
+  }
+}
+
+function renderCreatorsList() {
+  const list = document.getElementById('creators-list');
+  let filtered = state.creators;
+  if (creatorFilter === 'pending')  filtered = filtered.filter(u => (u.verify_status||'pending') === 'pending');
+  if (creatorFilter === 'approved') filtered = filtered.filter(u => u.verify_status === 'approved');
+  if (creatorFilter === 'rejected') filtered = filtered.filter(u => u.verify_status === 'rejected');
+
+  if (!filtered.length) {
+    const labels = { all:'创作者', pending:'待审核', approved:'已通过', rejected:'有问题' };
+    list.innerHTML = `<div style="color:var(--text-light);padding:40px;text-align:center">暂无${labels[creatorFilter]||''}${labels[creatorFilter]?'的记录':'创作者'}</div>`;
+    return;
+  }
+
+  const statusBadge = (s) => {
+    if (s === 'approved') return '<span class="badge badge-approved">✅ 已通过</span>';
+    if (s === 'rejected') return '<span class="badge badge-rejected">❌ 有问题</span>';
+    return '<span class="badge badge-pending">⏳ 待审核</span>';
+  };
+
+  list.innerHTML = filtered.map(u => {
+    const vs = u.verify_status || 'pending';
+    const avatarHtml = u.xhs_avatar
+      ? `<img src="${escHtml(u.xhs_avatar)}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`
+      : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:22px;color:#999">👤</div>`;
+    return `
+    <div style="display:flex;gap:14px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+      <div style="flex-shrink:0;width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid #f0f0f0;background:#f9fafb">${avatarHtml}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <span style="font-weight:600;font-size:14px;color:var(--text-main)">${escHtml(u.display_name||u.username)}</span>
+          ${statusBadge(vs)}
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          ${u.xhs_profile_url ? `<a href="${escHtml(u.xhs_profile_url)}" target="_blank" style="font-size:12px;color:var(--primary);text-decoration:none;white-space:nowrap">🔗 小红书主页</a>` : '<span style="font-size:12px;color:#bbb">未提供主页</span>'}
+          ${u.xhs_uid ? `<span style="font-size:12px;color:var(--text-light)">UID:<code style="background:#f3f4f6;padding:1px 5px;border-radius:3px;cursor:pointer" onclick="navigator.clipboard.writeText('${escHtml(u.xhs_uid)}').then(()=>showToast('UID已复制','success'))" title="点击复制">${escHtml(u.xhs_uid)}</code></span>` : ''}
+          <span style="font-size:12px;color:var(--text-light)">投稿${u.sub_count||0}次</span>
+        </div>
+      </div>
+      <div style="flex-shrink:0;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        ${u.xhs_screenshot ? `<button class="btn btn-outline btn-sm" onclick="showProofModal('${escHtml(u.xhs_screenshot)}')">🖼 凭证</button>` : ''}
+        ${vs === 'pending' ? `<button class="btn btn-success btn-sm" onclick="verifyUser(${u.id},'approved',this)">✅ 通过</button><button class="btn btn-danger btn-sm" onclick="verifyUser(${u.id},'rejected',this)">❌ 拒绝</button>` : ''}
+        ${vs === 'approved' ? `<button class="btn btn-ghost btn-sm" onclick="verifyUser(${u.id},'rejected',this)">标记问题</button>` : ''}
+        ${vs === 'rejected' ? `<button class="btn btn-ghost btn-sm" onclick="verifyUser(${u.id},'approved',this)">恢复通过</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
+function showProofModal(url) {
+  const existing = document.getElementById('__proof-modal');
+  if (existing) existing.remove();
+  const m = document.createElement('div');
+  m.id = '__proof-modal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer';
+  m.innerHTML = '<div style="position:relative;max-width:90vw;max-height:90vh"><img src="'+url+'" style="max-width:90vw;max-height:85vh;border-radius:12px;display:block;box-shadow:0 8px 32px rgba(0,0,0,.4)"><button style="position:absolute;top:-14px;right:-14px;width:28px;height:28px;border-radius:50%;background:#fff;border:none;font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2)" onclick="document.getElementById(\'__proof-modal\').remove()">×</button></div>';
+  m.onclick = function(e) { if (e.target === m) m.remove(); };
+  document.body.appendChild(m);
+}
+
+// ── Publish Form ──
+document.querySelectorAll('.type-toggle .type-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const parent = this.closest('.type-toggle');
+    parent.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const hiddenInput = parent.nextElementSibling;
+    if (hiddenInput && hiddenInput.type === 'hidden') hiddenInput.value = this.dataset.type;
+  });
+});
+
+document.getElementById('add-note-btn').addEventListener('click', () => addNote('publish'));
+const pubNoteInput = document.getElementById('publish-note-input'); if(pubNoteInput) pubNoteInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addNote('publish'); } });
+
+function addNote(prefix) {
+  const input = document.getElementById(`${prefix}-note-input`);
+  const val = input.value.trim();
+  if (!val) return;
+  const list = state[`${prefix}Notes`];
+  if (list.length >= 20) { alert('最多添加20个参考笔记'); return; }
+  if (list.includes(val)) { input.value = ''; return; }
+  list.push(val);
+  renderNotesList(prefix);
+  input.value = '';
+}
+
+function removeNote(prefix, idx) {
+  state[`${prefix}Notes`].splice(idx, 1);
+  renderNotesList(prefix);
+}
+
+// 笔记信息缓存
+const noteInfoCache = {};
+async function fetchNoteInfo(noteId) {
+  if (noteInfoCache[noteId]) return noteInfoCache[noteId];
+  try {
+    const d = await apiFetch(`/api/fetch_note?note_id=${noteId}`);
+    const info = { title: d.title || noteId, cover: d.cover_url || d.cover || '' };
+    noteInfoCache[noteId] = info;
+    return info;
+  } catch(e) { return { title: noteId, cover: '' }; }
+}
+
+async function renderNotesList(prefix) {
+  const container = document.getElementById(`${prefix}-notes-list`);
+  const notes = state[`${prefix}Notes`];
+  if (!notes.length) { container.innerHTML = '<div style="color:var(--text-light);font-size:12px;padding:8px 0">暂无参考笔记</div>'; return; }
+  // 先渲染 placeholder
+  container.innerHTML = notes.map((n, i) => `
+    <div class="note-mini-card" data-idx="${i}" data-id="${escHtml(n)}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg-light,#f9fafb);border:1px solid var(--border);border-radius:10px;margin-bottom:8px">
+      <div class="note-mini-cover" style="width:48px;height:48px;border-radius:6px;background:#e5e7eb;flex-shrink:0;overflow:hidden">
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px">📝</div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="note-mini-title" style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-main,#111827)">加载中…</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:2px">${escHtml(n)}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm tag-remove" data-idx="${i}" style="flex-shrink:0;color:#EF4444;font-size:18px;line-height:1;padding:2px 6px">×</button>
+    </div>
+  `).join('');
+  // 绑删除事件
+  container.querySelectorAll('.tag-remove').forEach(btn => {
+    btn.addEventListener('click', () => removeNote(prefix, parseInt(btn.dataset.idx)));
+  });
+  // 异步拉取封面+标题
+  notes.forEach(async (noteId, i) => {
+    const info = await fetchNoteInfo(noteId);
+    const card = container.querySelector(`[data-idx="${i}"]`);
+    if (!card) return;
+    const titleEl = card.querySelector('.note-mini-title');
+    const coverEl = card.querySelector('.note-mini-cover');
+    if (titleEl) titleEl.textContent = info.title || noteId;
+    if (coverEl && info.cover) coverEl.innerHTML = `<img src="${escHtml(info.cover)}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.innerHTML='\ud83d\udcdd'">`;
+  });
+}
+
+async function doPublishTopic() {
+  const titleEl = document.getElementById('publish-title');
+  if (!titleEl) { alert('表单初始化失败，请刷新页面'); return; }
+  const title = titleEl.value.trim();
+  if (!title) { alert('请填写选题标题'); return; }
+  const btn = document.getElementById('publish-submit-btn');
+  btn.disabled = true; btn.textContent = '发布中…';
+  try {
+    const body = {
+      type: document.getElementById('publish-type').value,
+      title,
+      description: document.getElementById('publish-description').value.trim(),
+      benefits: document.getElementById('publish-benefits').value.trim(),
+      ref_notes: state.publishNotes,
+      directions: state.pubDirections,
+      requirements: document.getElementById('pub-requirements').value,
+      source: document.getElementById('publish-source').value,
+      deadline: document.getElementById('publish-deadline').value || null,
+      cover_url: coverUrls['pub'] || '',
+    };
+    console.log('[发布] 请求数据:', JSON.stringify(body, null, 2));
+    const result = await apiFetch('/api/topics', { method: 'POST', body: JSON.stringify(body) });
+    console.log('[发布] 响应:', result);
+    const successEl = document.getElementById('publish-success');
+    if (successEl) {
+      successEl.classList.add('show');
+      document.getElementById('publish-title').value = '';
+      document.getElementById('publish-description').value = '';
+      document.getElementById('publish-benefits').value = '';
+      document.getElementById('publish-deadline').value = '';
+      document.getElementById('pub-requirements').value = '';
+      state.publishNotes = [];
+      state.pubDirections = [];
+      clearCover('pub');
+      renderNotesList('publish');
+      renderDirections('pub');
+      setTimeout(() => { successEl.classList.remove('show'); switchTab('overview'); }, 1500);
+    }
+  } catch (e) {
+    console.error('[发布] 失败:', e);
+    alert('发布失败: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '发布选题';
+  }
+}
+
+// ── Edit Drawer ──
+async function openEditDrawer(id) {
+  let topic = state.topics.find(t => String(t.id) === String(id));
+  if (!topic) {
+    // fallback: 直接从 API 拿
+    try { topic = await apiFetch(`/api/topics/${id}`); } catch(e) {}
+    if (!topic) { alert('找不到选题数据'); return; }
+  }
+  document.getElementById('edit-topic-id').value = id;
+  document.getElementById('edit-title').value = topic.title || '';
+  document.getElementById('edit-description').value = topic.description || '';
+  document.getElementById('edit-benefits').value = topic.benefits || '';
+  document.getElementById('edit-deadline').value = topic.deadline ? topic.deadline.slice(0,10) : '';
+  document.getElementById('edit-source').value = topic.source || 'operator';
+  // Type buttons
+  const typeVal = topic.type || 'topic';
+  document.getElementById('edit-type').value = typeVal;
+  document.querySelectorAll('#edit-drawer .type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === typeVal);
+  });
+  // Notes
+  // ref_notes 可能是 JSON 字符串或数组
+  let parsedNotes = topic.ref_notes;
+  if (typeof parsedNotes === 'string') { try { parsedNotes = JSON.parse(parsedNotes); } catch(e) { parsedNotes = []; } }
+  state.editNotes = Array.isArray(parsedNotes) ? [...parsedNotes] : [];
+  renderNotesList('edit');
+  document.getElementById('edit-requirements').value = topic.requirements || '';
+  let parsedDirs = topic.directions || [];
+  if (typeof parsedDirs === 'string') { try { parsedDirs = JSON.parse(parsedDirs); } catch(e) { parsedDirs = []; } }
+  state.editDirections = Array.isArray(parsedDirs) ? parsedDirs : [];
+  renderDirections('edit');
+  // 封面预览
+  clearCover('edit');
+  if (topic.cover_url) {
+    coverUrls['edit'] = topic.cover_url;
+    showCoverPreview('edit', topic.cover_url);
+  }
+  document.getElementById('edit-success').classList.remove('show');
+  document.getElementById('edit-error').classList.remove('show');
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('edit-overlay').classList.remove('open');
+}
+
+document.getElementById('edit-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('edit-overlay')) closeDrawer();
+});
+document.getElementById('drawer-close-btn').addEventListener('click', closeDrawer);
+
+document.getElementById('add-note-note-ids').addEventListener('click', () => addNote('edit'));
+document.getElementById('add-note-note-ids').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addNote('edit'); } });
+
+async function doSaveEdit() {
+  const id = document.getElementById('edit-topic-id').value;
+  const title = document.getElementById('edit-title').value.trim();
+  if (!id) { alert('找不到选题ID，请重新打开编辑'); return; }
+  if (!title) { document.getElementById('edit-title').focus(); document.getElementById('edit-title').style.borderColor='#ef4444'; alert('请填写选题标题'); return; }
+  const btn = document.getElementById('edit-save-btn');
+  btn.disabled = true; btn.textContent = '保存中…';
+  try {
+    const updated = await apiFetch(`/api/topics/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        type: document.getElementById('edit-type').value,
+        title,
+        description: document.getElementById('edit-description').value.trim(),
+        benefits: document.getElementById('edit-benefits').value.trim(),
+        ref_notes: state.editNotes,
+        requirements: document.getElementById('edit-requirements').value,
+        directions: state.editDirections,
+        source: document.getElementById('edit-source').value,
+        deadline: document.getElementById('edit-deadline').value || null,
+        cover_url: coverUrls['edit'] || '',
+      })
+    });
+    // Update in local state
+    // 重新加载 topics 确保数据最新
+    const fresh = await apiFetch('/api/admin/topics');
+    state.topics = Array.isArray(fresh) ? fresh : (fresh.topics || []);
+    document.getElementById('edit-success').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('edit-success').classList.remove('show');
+      closeDrawer();
+      renderTopicList();
+    }, 1000);
+  } catch (e) {
+    document.getElementById('edit-error').classList.add('show');
+    setTimeout(() => document.getElementById('edit-error').classList.remove('show'), 3000);
+  } finally {
+    btn.disabled = false; btn.textContent = '保存修改';
+  }
+}
+
+// ── Utils ──
+// ── Directions Management ──
+function addDirection(prefix) {
+  state[prefix+'Directions'].push({title:'', desc:'', notes:[]});
+  renderDirections(prefix);
+}
+function removeDirection(prefix, idx) {
+  state[prefix+'Directions'].splice(idx, 1);
+  renderDirections(prefix);
+}
+function updateDirection(prefix, idx, field, val) {
+  if (state[prefix+'Directions'][idx]) state[prefix+'Directions'][idx][field] = val;
+}
+function addNoteToDirection(prefix, idx) {
+  const input = document.getElementById(prefix+'-dir-'+idx+'-note-input');
+  if (!input) return;
+  const nid = input.value.trim();
+  if (!nid) return;
+  const dirs = state[prefix+'Directions'];
+  if (dirs[idx] && !dirs[idx].notes.includes(nid)) {
+    dirs[idx].notes.push(nid);
+    renderDirections(prefix);
+  }
+  input.value = '';
+}
+function removeNoteFromDir(prefix, dirIdx, noteIdx) {
+  state[prefix+'Directions'][dirIdx].notes.splice(noteIdx, 1);
+  renderDirections(prefix);
+}
+function renderDirections(prefix) {
+  const container = document.getElementById(prefix+'-directions-list');
+  if (!container) return;
+  const dirs = state[prefix+'Directions'];
+  if (!dirs.length) {
+    container.innerHTML = '<div style="color:var(--text-light);font-size:13px;padding:8px 0">暂无选题方向，点击下方按钮添加</div>';
+    return;
+  }
+  container.innerHTML = dirs.map(function(d, i) {
+    return '<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+      + '<span style="font-weight:600;font-size:14px">方向 '+(i+1)+'</span>'
+      + '<button class="btn btn-ghost btn-sm" onclick="removeDirection(\''+prefix+'\','+i+')" style="color:#ef4444">删除</button>'
+      + '</div>'
+      + '<input class="form-input" placeholder="方向标题" value="'+escHtml(d.title||'')+'" style="margin-bottom:8px;width:100%" oninput="updateDirection(\''+prefix+'\','+i+',\'title\',this.value)" />'
+      + '<textarea class="form-input" placeholder="选题解析..." rows="3" style="resize:none;margin-bottom:8px;width:100%" oninput="updateDirection(\''+prefix+'\','+i+',\'desc\',this.value)">'+escHtml(d.desc||'')+'</textarea>'
+      + '<div style="font-size:13px;color:var(--text-sub);margin-bottom:6px">参考笔记（'+d.notes.length+'条）</div>'
+      + d.notes.map(function(n,ni){ return '<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:var(--bg);border-radius:6px;margin-bottom:4px;font-size:12px"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(n)+'</span><button class="btn btn-ghost" style="padding:0 4px;font-size:14px;color:#ef4444" onclick="removeNoteFromDir(\''+prefix+'\','+i+','+ni+')">×</button></div>'; }).join('')
+      + '<div style="display:flex;gap:8px;margin-top:6px">'
+      + '<input class="form-input" id="'+prefix+'-dir-'+i+'-note-input" placeholder="输入笔记ID" style="flex:1;height:32px;font-size:13px" />'
+      + '<button class="btn btn-ghost btn-sm" onclick="addNoteToDirection(\''+prefix+'\','+i+')">添加</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(dateStr) {
+  try {
+    const d = new Date(dateStr);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  } catch(e) { return dateStr; }
+}
+
+// ══════════════════════════════════════════
+// 选题详情面板
+// ══════════════════════════════════════════
+async function openTopicDetail(id) {
+  const overlay = document.getElementById('detail-overlay');
+  const panel   = document.getElementById('detail-panel');
+  overlay.classList.add('open');
+  panel.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-light)">加载中…</div>';
+
+  // 并行请求选题详情 + 投稿列表
+  const [topic, subs] = await Promise.all([
+    apiFetch(`/api/topics/${id}`),
+    apiFetch(`/api/submissions?topic_id=${id}`)
+  ]);
+  if (!topic || topic.error) { panel.innerHTML = '<div style="padding:40px;text-align:center;color:red">加载失败</div>'; return; }
+
+  // 解析 ref_notes
+  let refNotes = topic.ref_notes || [];
+  if (typeof refNotes === 'string') { try { refNotes = JSON.parse(refNotes); } catch(e) { refNotes = []; } }
+
+  const typeLabel = topic.type === 'plan' ? '🏆 企划' : '💡 选题';
+  const statusColor = topic.status === 'published' ? 'var(--success)' : topic.status === 'pending' ? 'var(--warning)' : '#999';
+  const statusText  = { published:'已发布', pending:'待审核', offline:'已下架' }[topic.status] || topic.status;
+
+  panel.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div>
+        <div style="font-size:20px;font-weight:700;color:var(--text-main);margin-bottom:8px">${escHtml(topic.title)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="badge">${typeLabel}</span>
+          <span style="font-size:12px;padding:3px 10px;border-radius:20px;background:${statusColor}22;color:${statusColor};font-weight:600">${statusText}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" id="detail-edit-toggle-btn" onclick="toggleDetailEdit(${id})">✏️ 编辑</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeTopicDetail()">× 关闭</button>
+      </div>
+    </div>
+
+    <div id="detail-view-mode">
+    <\!-- 描述 -->
+    ${topic.description ? `<div style="background:var(--bg-light,#f9fafb);border-radius:10px;padding:14px;margin-bottom:20px;font-size:14px;color:var(--text-main);line-height:1.7;white-space:pre-wrap">${escHtml(topic.description)}</div>` : ''}
+
+    <\!-- 选题权益与要求 -->
+    ${topic.requirements ? `<div style="margin-bottom:20px"><div style="font-weight:600;font-size:14px;margin-bottom:8px">📋 选题权益与要求</div><div style="background:#FFFBEB;border:1px solid #FEF3C7;border-radius:10px;padding:14px;font-size:13px;color:#92400E;white-space:pre-wrap;line-height:1.8">${escHtml(topic.requirements)}</div></div>` : ''}
+
+    <\!-- 参考笔记 / 选题方向 -->
+    ${(() => {
+      let dirs = topic.directions || [];
+      if (typeof dirs === 'string') { try { dirs = JSON.parse(dirs); } catch(e) { dirs = []; } }
+      if (Array.isArray(dirs) && dirs.length > 0) {
+        const totalNotes = dirs.reduce((s, d) => s + (d.notes || []).length, 0);
+        return `<div style="margin-bottom:24px">
+          <div style="font-weight:600;font-size:14px;margin-bottom:12px;color:var(--text-main)">📎 选题方向（${dirs.length}个方向，共${totalNotes}条参考笔记）</div>
+          <div id="detail-ref-notes-list">
+            ${dirs.map((dir, di) => {
+              const notes = dir.notes || [];
+              return `<div style="margin-bottom:16px;border:1px solid var(--border);border-radius:10px;padding:14px">
+                <div style="font-weight:600;font-size:14px;margin-bottom:6px">${escHtml(dir.title || '未命名方向')}</div>
+                ${dir.desc ? `<div style="font-size:13px;color:var(--text-sub);margin-bottom:10px;line-height:1.6">${escHtml(dir.desc)}</div>` : ''}
+                ${notes.length ? `<div class="note-cards-container" data-dir-index="${di}"><div style="color:var(--text-light);font-size:13px;padding:8px 0">加载中…</div></div>` : '<div style="color:var(--text-light);font-size:13px;padding:4px 0">暂无参考笔记</div>'}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      } else {
+        return `<div style="margin-bottom:24px">
+          <div style="font-weight:600;font-size:14px;margin-bottom:12px;color:var(--text-main)">📎 参考笔记（${refNotes.length}条）</div>
+          <div id="detail-plain-notes-list">
+            ${refNotes.length ? `<div class="note-cards-container" data-dir-index="flat"><div style="color:var(--text-light);font-size:13px;padding:8px 0">加载中…</div></div>` : '<div style="color:var(--text-light);font-size:13px">暂无参考笔记</div>'}
+          </div>
+        </div>`;
+      }
+    })()}
+    </div><\!-- /detail-view-mode -->
+
+    <\!-- 编辑模式面板（默认隐藏） -->
+    <div id="detail-edit-mode" style="display:none">
+      <div style="background:var(--bg-light,#f9fafb);border-radius:12px;padding:20px;margin-bottom:20px">
+        <div style="font-weight:600;font-size:15px;margin-bottom:14px">️ 编辑选题</div>
+        <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">标题</label><input class="form-control" id="edit-inline-title" value="${escHtml(topic.title)}" style="width:100%"></div>
+        <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">简介描述</label><textarea id="edit-inline-desc" rows="4" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit">${escHtml(topic.description||'')}</textarea></div>
+        <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">选题权益与要求</label><textarea id="edit-inline-reqs" rows="6" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit">${escHtml(topic.requirements||'')}</textarea></div>
+        <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">前端显示参与人数</label><input class="form-control" id="edit-inline-participant-count" type="number" min="0" value="${topic.participant_count||0}" style="width:120px" placeholder="0"><div style="font-size:11px;color:var(--text-light);margin-top:4px">创作者端卡片显示的参与人数，留 0 则显示实际投稿数</div></div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:13px;font-weight:500;display:block;margin-bottom:8px">参考方向</label>
+          <div id="edit-directions-editor" style="background:var(--bg-light);border-radius:10px;padding:14px"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn btn-primary btn-sm" onclick="saveInlineEdit(${id})">💾 保存</button>
+          <button class="btn btn-ghost btn-sm" onclick="cancelInlineEdit()">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <\!-- 已有投稿 -->
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-weight:600;font-size:14px;color:var(--text-main)"> 已有投稿（${(subs||[]).length}个）</div>
+        <button class="btn btn-outline btn-sm" onclick="openAddNoteModal(${id})" style="font-size:12px">+ 添加笔记</button>
+      </div>
+      ${!(subs||[]).length ? '<div style="color:var(--text-light);font-size:13px">暂无投稿</div>' :
+        (subs||[]).map(s => {
+          const isExisting = s.submit_type === 'existing';
+          const coverUrl = isExisting && s.cover_url ? escHtml(s.cover_url) : '';
+          const statusClass = s.status === 'approved' ? 'badge-approved' : s.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
+          const statusText = s.status === 'approved' ? '已通过' : s.status === 'rejected' ? '已拒绝' : '待审核';
+          const typeText = isExisting ? '📹已有作品' : '📝脚本思路';
+          const author = escHtml(s.creator_name || s.display_name || '匿名');
+          const title = isExisting && s.note_title ? escHtml(s.note_title) : '';
+          const noteLink = isExisting && s.note_link ? escHtml(s.note_link) : '';
+          let actions = '';
+          if (s.status === 'pending') {
+            actions += `<button class="btn btn-success btn-sm" onclick="quickReviewSub(${s.id},'approved',this)" title="通过">✅</button> `;
+            actions += `<button class="btn btn-danger btn-sm" onclick="quickReviewSub(${s.id},'rejected',this)" title="拒绝">❌</button> `;
+          }
+          actions += `<button class="btn btn-outline btn-sm" onclick="editDetailSubmission(${s.id})" title="编辑" style="font-size:11px;padding:2px 8px">✏️</button> `;
+          actions += `<button class="btn btn-ghost btn-sm" onclick="deleteDetailSubmission(${s.id})" title="删除" style="font-size:11px;padding:2px 8px;color:var(--danger)">🗑️</button>`;
+          return `<div class="sub-card" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:#fff;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'" onmouseout="this.style.boxShadow='none'">
+            <div style="width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f3f4f6;display:flex;align-items:center;justify-content:center">
+              ${coverUrl ? `<img src="${coverUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.parentElement.innerHTML='';this.parentElement.style.fontSize='24px'">` : '<span style="font-size:24px">🎮</span>'}
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap">
+                <span style="font-size:12px;color:var(--text-sub)">${typeText}</span>
+                <span class="badge ${statusClass}" style="font-size:11px;padding:1px 6px">${statusText}</span>
+                ${s.likes ? `<span style="font-size:11px;color:var(--text-light)">❤️ ${s.likes}</span>` : ''}
+              </div>
+              ${title ? `<div style="font-size:13px;font-weight:600;color:var(--text-main);margin-bottom:2px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${title}</div>` : ''}
+              <div style="font-size:12px;color:var(--text-sub)">👤 ${author}${noteLink ? ` · <a href="${noteLink}" target="_blank" style="color:var(--primary);text-decoration:none">查看笔记 </a>` : ''}</div>
+            </div>
+            <div style="display:flex;gap:4px;flex-shrink:0">${actions}</div>
+          </div>`;
+        }).join('')}
+    </div>
+  `;
+
+  // 保存原始数据用于编辑
+  panel._topicData = topic;
+
+  // 并行加载所有笔记数据
+  const allNoteIds = [];
+  let parsedDirsDetail = topic.directions || [];
+  console.log('[笔记加载] 开始加载', allNoteIds.length, '条笔记');
+  if (typeof parsedDirsDetail === 'string') { try { parsedDirsDetail = JSON.parse(parsedDirsDetail); } catch(e) { parsedDirsDetail = []; } }
+  if (Array.isArray(parsedDirsDetail) && parsedDirsDetail.length > 0) {
+    parsedDirsDetail.forEach((dir, di) => (dir.notes || []).forEach(n => {
+      const nid = typeof n === 'string' ? n : (n.id || n.note_id || '');
+      if (nid) allNoteIds.push({ nid, dirIndex: di });
+    }));
+  } else {
+    refNotes.forEach(n => {
+      const nid = typeof n === 'string' ? n : (n.id || n.note_id || '');
+      if (nid) allNoteIds.push({ nid, dirIndex: 'flat' });
+    });
+  }
+  const loadPromises = allNoteIds.map(async ({ nid }) => {
+    try {
+      const resp = await fetch(`/api/fetch_note?note_id=${encodeURIComponent(nid)}`, {credentials:'include'});
+      if (!resp.ok) return { nid, error: true };
+      return { nid, ...await resp.json() };
+    } catch(e) { return { nid, error: true }; }
+  console.log('[笔记加载] API 返回', results.filter(r=>!r.error).length, '条成功');
+  });
+  const results = await Promise.all(loadPromises);
+  const byDir = {};
+  results.forEach(r => {
+    const entry = allNoteIds.find(a => a.nid === r.nid);
+    if (!entry) return;
+    const key = entry.dirIndex;
+    if (!byDir[key]) byDir[key] = [];
+    byDir[key].push(r);
+  });
+  Object.entries(byDir).forEach(([dirIdx, notes]) => {
+    const container = panel.querySelector(`[data-dir-index="${dirIdx}"]`);
+    if (!container) return;
+    container.innerHTML = notes.map(r => {
+      const coverUrl = r.cover || r.cover_url || '';
+      const title = r.title || r.nid;
+      const likes = r.likes || 0;
+      const nid = r.nid;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg-light,#f9fafb);border:1px solid var(--border);border-radius:10px;margin-bottom:8px">
+        <div style="width:48px;height:48px;border-radius:6px;flex-shrink:0;overflow:hidden;background:#e5e7eb">
+          ${coverUrl ? `<img src="${escHtml(coverUrl)}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px">📝</div>'}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(title)}</div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:2px">❤️ ${likes} · ${escHtml(nid)}</div>
+        </div>
+        <a href="https://www.xiaohongshu.com/explore/${escHtml(nid)}" target="_blank" style="font-size:12px;color:var(--primary);flex-shrink:0">查看↗︎</a>
+      </div>`;
+    }).join('');
+  });
+}
+
+function closeTopicDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+}
+
+// ── 详情页投稿管理 ──
+async function deleteDetailSubmission(subId) {
+  if (!confirm('确定删除这条投稿？')) return;
+  try {
+    await apiFetch(`/api/submissions/${subId}`, { method: 'DELETE' });
+    // 刷新投稿列表
+    const subs = await apiFetch('/api/submissions');
+    state.submissions = subs.submissions || subs || [];
+    // 重新渲染详情页
+    const panel = document.getElementById('detail-panel');
+    const topicId = panel._topicData?.id;
+    if (topicId) {
+      openTopicDetail(topicId);
+    }
+    // 刷新列表
+    renderTopicList();
+  } catch(e) {
+    alert('删除失败: ' + e.message);
+  }
+}
+
+async function editDetailSubmission(subId) {
+  const s = state.submissions.find(x => String(x.id) === String(subId));
+  if (!s) { alert('找不到投稿'); return; }
+  
+  // 用弹窗编辑
+  const overlay = document.getElementById('edit-sub-overlay');
+  if (!overlay) {
+    // 动态创建编辑弹窗
+    const div = document.createElement('div');
+    div.id = 'edit-sub-overlay';
+    div.className = 'edit-overlay';
+    div.style.cssText = 'z-index:1900;display:none;justify-content:center;align-items:center';
+    div.innerHTML = `
+      <div style="background:#fff;border-radius:16px;max-width:500px;width:95vw;padding:28px;position:relative">
+        <button onclick="closeEditSub()" style="position:absolute;top:16px;right:16px;font-size:20px;border:none;background:none;cursor:pointer;color:var(--text-light)">×</button>
+        <h3 style="margin-bottom:20px">✏️ 编辑投稿</h3>
+        <div id="edit-sub-form"></div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn btn-primary" onclick="saveEditSub()">💾 保存</button>
+          <button class="btn btn-ghost" onclick="closeEditSub()">取消</button>
+        </div>
+      </div>`;
+    div.onclick = e => { if (e.target === div) closeEditSub(); };
+    document.body.appendChild(div);
+  }
+  
+  // 填充表单
+  const form = document.getElementById('edit-sub-form');
+  const isExisting = s.submit_type === 'existing';
+  form.innerHTML = `
+    <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">创作者昵称</label>
+      <input class="form-control" id="edit-sub-creator" value="${escHtml(s.creator_name || s.display_name || '')}"></div>
+    ${isExisting ? `
+    <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">笔记链接</label>
+      <input class="form-control" id="edit-sub-note-link" value="${escHtml(s.note_link || '')}"></div>
+    <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">封面URL</label>
+      <input class="form-control" id="edit-sub-cover" value="${escHtml(s.cover_url || '')}"></div>
+    <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">点赞数</label>
+      <input class="form-control" id="edit-sub-likes" type="number" value="${s.likes || 0}"></div>
+    ` : `
+    <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">脚本思路</label>
+      <textarea class="form-control" id="edit-sub-draft" rows="4">${escHtml(s.draft_content || '')}</textarea></div>
+    <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">联系方式</label>
+      <input class="form-control" id="edit-sub-contact" value="${escHtml(s.contact || '')}"></div>
+    `}
+    <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">状态</label>
+      <select class="form-control" id="edit-sub-status">
+        <option value="pending" ${s.status==='pending'?'selected':''}>待审核</option>
+        <option value="approved" ${s.status==='approved'?'selected':''}>已通过</option>
+        <option value="rejected" ${s.status==='rejected'?'selected':''}>已拒绝</option>
+      </select></div>
+    <div style="margin-bottom:12px"><label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">审核备注</label>
+      <textarea class="form-control" id="edit-sub-note" rows="2">${escHtml(s.review_note || '')}</textarea></div>
+  `;
+  
+  overlay.style.display = 'flex';
+}
+
+function closeEditSub() {
+  const overlay = document.getElementById('edit-sub-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+async function saveEditSub() {
+  const s = state.submissions.find(x => String(x.id) === String(document.getElementById('edit-sub-creator').dataset.subId));
+  if (!s) return;
+  
+  try {
+    const data = {
+      creator_name: document.getElementById('edit-sub-creator').value.trim(),
+      status: document.getElementById('edit-sub-status').value,
+      review_note: document.getElementById('edit-sub-note').value.trim(),
+    };
+    
+    if (s.submit_type === 'existing') {
+      data.note_link = document.getElementById('edit-sub-note-link').value.trim();
+      data.cover_url = document.getElementById('edit-sub-cover').value.trim();
+      data.likes = parseInt(document.getElementById('edit-sub-likes').value) || 0;
+      // 从链接提取 note_id
+      const m = data.note_link.match(/explore\/([a-f0-9]+)/);
+      if (m) data.note_id = m[1];
+    } else {
+      data.draft_content = document.getElementById('edit-sub-draft').value.trim();
+      data.contact = document.getElementById('edit-sub-contact').value.trim();
+    }
+    
+    await apiFetch(`/api/submissions/${s.id}`, { method: 'PUT', body: JSON.stringify(data) });
+    
+    // 刷新
+    const subs = await apiFetch('/api/submissions');
+    state.submissions = subs.submissions || subs || [];
+    closeEditSub();
+    
+    // 重新渲染详情页
+    const panel = document.getElementById('detail-panel');
+    const topicId = panel._topicData?.id;
+    if (topicId) openTopicDetail(topicId);
+    renderTopicList();
+  } catch(e) {
+    alert('保存失败: ' + e.message);
+  }
+}
+
+// ── 详情页内联编辑 ─
+var editDirectionsData = [];
+function toggleDetailEdit(id) {
+  try {
+    const viewMode = document.getElementById('detail-view-mode');
+    const editMode = document.getElementById('detail-edit-mode');
+    const btn = document.getElementById('detail-edit-toggle-btn');
+    if (!viewMode || !editMode || !btn) {
+      alert('编辑模式元素未找到，请刷新页面重试');
+      return;
+    }
+    if (editMode.style.display === 'none') {
+    // 加载方向数据
+    const topic = state.topics.find(t => String(t.id) === String(id));
+    if (topic) {
+      let dirs = topic.directions || [];
+      if (typeof dirs === 'string') { try { dirs = JSON.parse(dirs); } catch(e) { dirs = []; } }
+      editDirectionsData = Array.isArray(dirs) ? dirs.map(d => ({
+        title: d.title || '',
+        desc: d.desc || '',
+        notes: (d.notes || []).map(n => typeof n === 'string' ? n : (n.note_id || n.id || ''))
+      })) : [];
+      renderDirectionsEditor();
+    }
+    viewMode.style.display = 'none';
+    editMode.style.display = 'block';
+    btn.textContent = '👁 查看';
+  } else {
+    viewMode.style.display = 'block';
+    editMode.style.display = 'none';
+    btn.textContent = '✏️ 编辑';
+  }
+  } catch(e) {
+    alert('切换编辑模式失败: ' + e.message);
+  }
+}
+// ─ 方向编辑器状态 ──
+
+function renderDirectionsEditor() {
+  const container = document.getElementById('edit-directions-editor');
+  if (!container) return;
+  if (!editDirectionsData.length) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-light);font-size:13px">暂无参考方向<button class="btn btn-outline btn-sm" onclick="addDirection()" style="margin-left:8px">+ 添加方向</button></div>';
+    return;
+  }
+  container.innerHTML = editDirectionsData.map((dir, di) => {
+    const notes = dir.notes || [];
+    return '<div style="background:#fff;border-radius:8px;padding:12px;margin-bottom:10px;border:1px solid var(--border)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+      + '<div style="font-weight:600;font-size:13px;color:var(--primary)">方向 '+(di+1)+'</div>'
+      + '<button class="btn btn-ghost btn-sm" onclick="removeDirection('+di+')" style="font-size:12px;color:var(--danger)">删除</button>'
+      + '</div>'
+      + '<div style="margin-bottom:8px"><input class="form-control" value="'+escHtml(dir.title||'')+'" placeholder="方向标题" onchange="updateDirTitle('+di+',this.value)" style="font-size:13px;padding:6px 10px"></div>'
+      + '<div style="margin-bottom:8px"><textarea rows="2" placeholder="方向描述" onchange="updateDirDesc('+di+',this.value)" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit">'+escHtml(dir.desc||'')+'</textarea></div>'
+      + '<div style="font-size:12px;color:var(--text-light);margin-bottom:4px">笔记ID（每行一个，支持链接）</div>'
+      + '<textarea id="dir-notes-'+di+'" rows="3" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace" onchange="updateDirNotes('+di+',this.value)">'+(notes.map(n=>typeof n==='string'?n:n.note_id||n.id||'').join('\n'))+'</textarea>'
+      + '</div>';
+  }).join('') + '<button class="btn btn-outline btn-sm" onclick="addDirection()" style="width:100%;margin-top:4px">+ 添加新方向</button>';
+}
+
+function addDirection() {
+  editDirectionsData.push({ title: '', desc: '', notes: [] });
+  renderDirectionsEditor();
+}
+
+function removeDirection(di) {
+  if (!confirm('确定删除方向 '+(di+1)+'？')) return;
+  editDirectionsData.splice(di, 1);
+  renderDirectionsEditor();
+}
+
+function updateDirTitle(di, val) { editDirectionsData[di].title = val; }
+function updateDirDesc(di, val) { editDirectionsData[di].desc = val; }
+
+function updateDirNotes(di, val) {
+  const lines = val.split('\n').map(l=>l.trim()).filter(l=>l);
+  // 从链接中提取 note_id
+  editDirectionsData[di].notes = lines.map(l => {
+    const m = l.match(/explore\/([a-f0-9]{24})/);
+    return m ? m[1] : l;
+  });
+}
+
+function cancelInlineEdit() {
+  toggleDetailEdit();
+}
+async function saveInlineEdit(id) {
+  const btn = document.querySelector('#detail-edit-mode .btn-primary');
+  btn.disabled = true; btn.textContent = '保存中…';
+  try {
+    await apiFetch('/api/topics/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({
+        title: document.getElementById('edit-inline-title').value.trim(),
+        description: document.getElementById('edit-inline-desc').value.trim(),
+        requirements: document.getElementById('edit-inline-reqs').value.trim(),
+        participant_count: parseInt(document.getElementById('edit-inline-participant-count').value) || 0,
+        directions: JSON.stringify(editDirectionsData),
+      })
+    });
+    openTopicDetail(id);
+  } catch(e) {
+    alert('保存失败: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 保存';
+  }
+}
+
+// ════ 封面图上传 ════
+async function onCoverChange(input, prefix) {
+  const file = input.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('file', file);
+  const box = document.getElementById(prefix+'-cover-box');
+  if (box) box.style.opacity = '0.6';
+  try {
+    const r = await fetch('/api/upload', { method:'POST', credentials:'include', body: fd });
+    const d = await r.json();
+    if (d.url) {
+      coverUrls[prefix] = d.url;
+      showCoverPreview(prefix, d.url);
+    } else { alert(d.error || '上传失败'); }
+  } catch(e) { alert('上传失败'); }
+  if (box) box.style.opacity = '1';
+}
+
+function onCoverUrlInput(input, prefix) {
+  const url = input.value.trim();
+  coverUrls[prefix] = url;
+  if (url) showCoverPreview(prefix, url);
+  else clearCover(prefix);
+}
+
+function showCoverPreview(prefix, url) {
+  const ph = document.getElementById(prefix+'-cover-placeholder');
+  const img = document.getElementById(prefix+'-cover-preview');
+  const urlInput = document.getElementById(prefix+'-cover-url-input');
+  if (ph) ph.style.display = 'none';
+  if (img) { img.src = url; img.style.display = 'block'; }
+  if (urlInput && urlInput.value !== url) urlInput.value = url;
+}
+
+function clearCover(prefix) {
+  coverUrls[prefix] = '';
+  const ph = document.getElementById(prefix+'-cover-placeholder');
+  const img = document.getElementById(prefix+'-cover-preview');
+  const urlInput = document.getElementById(prefix+'-cover-url-input');
+  const fileInput = document.getElementById(prefix+'-cover-input');
+  if (ph) ph.style.display = '';
+  if (img) { img.src = ''; img.style.display = 'none'; }
+  if (urlInput) urlInput.value = '';
+  if (fileInput) fileInput.value = '';
+}
+
+async function quickReviewSub(subId, status, btn) {
+  btn.disabled = true;
+  const r = await apiFetch(`/api/submissions/${subId}/status`, {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ status })
+  });
+  if (r.ok) {
+    const row = btn.closest('div[style*="border"]');
+    if (row) { row.style.opacity = '0.4'; setTimeout(() => row.remove(), 500); }
+  } else {
+    btn.disabled = false;
+    alert(r.error || '操作失败');
+  }
+}
+
+// ── 运营投稿 ──
+function openOperatorSubmit(topicId) {
+  closeTopicDetail();
+  document.getElementById('op-submit-topic-id').value = topicId;
+  document.getElementById('op-submit-note-link').value = '';
+  document.getElementById('op-submit-profile-link').value = '';
+  document.getElementById('op-submit-contact').value = '';
+  document.getElementById('op-submit-draft').value = '';
+  document.getElementById('op-submit-success').style.display = 'none';
+  document.getElementById('op-submit-error').style.display = 'none';
+  // 重置为作品类型
+  selectOpSubmitType(document.querySelector('.op-submit-type-btn[data-type="work"]'));
+  document.getElementById('op-submit-overlay').style.display = 'flex';
+}
+function closeOpSubmit() {
+  document.getElementById('op-submit-overlay').style.display = 'none';
+}
+function selectOpSubmitType(btn) {
+  document.querySelectorAll('.op-submit-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const t = btn.dataset.type;
+  document.getElementById('op-submit-work-form').style.display = t === 'work' ? 'block' : 'none';
+  document.getElementById('op-submit-script-form').style.display = t === 'script' ? 'block' : 'none';
+}
+async function doOpSubmit() {
+  const topicId = document.getElementById('op-submit-topic-id').value;
+  const type = document.querySelector('.op-submit-type-btn.active').dataset.type;
+  const btn = document.getElementById('op-submit-btn');
+  document.getElementById('op-submit-success').style.display = 'none';
+  document.getElementById('op-submit-error').style.display = 'none';
+  btn.disabled = true; btn.textContent = '提交中…';
+  try {
+    const body = { topic_id: topicId, submit_type: type };
+    if (type === 'work') {
+      let noteLink = document.getElementById('op-submit-note-link').value.trim();
+      // 提取 note_id
+      const m = noteLink.match(/explore\/([a-f0-9]{24})/);
+      if (m) noteLink = m[1];
+      if (!noteLink) throw new Error('请填写笔记ID或链接');
+      body.note_link = noteLink;
+      body.profile_link = document.getElementById('op-submit-profile-link').value.trim();
+    } else {
+      body.contact = document.getElementById('op-submit-contact').value.trim();
+      body.draft_content = document.getElementById('op-submit-draft').value.trim();
+      if (!body.draft_content) throw new Error('请填写脚本思路');
+    }
+    await apiFetch('/api/submissions', {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+    document.getElementById('op-submit-success').style.display = 'block';
+    setTimeout(() => { closeOpSubmit(); }, 1200);
+  } catch(e) {
+    document.getElementById('op-submit-error').style.display = 'block';
+    document.getElementById('op-submit-error').textContent = e.message || '投稿失败';
+  } finally {
+    btn.disabled = false; btn.textContent = '提交投稿';
+  }
+}
+
+// ── 添加笔记 ──
+function openAddNoteModal(topicId) {
+  document.getElementById('add-note-topic-id').value = topicId;
+  const noteInput = document.getElementById('add-note-note-ids');
+  if (noteInput) noteInput.value = '';
+  document.getElementById('add-note-preview').style.display = 'none';
+  document.getElementById('add-note-overlay').style.display = 'flex';
+}
+function closeAddNoteModal() {
+  document.getElementById('add-note-overlay').style.display = 'none';
+}
+async function doAddNotes() {
+  const topicId = document.getElementById('add-note-topic-id').value;
+  const textarea = document.getElementById('add-note-note-ids');
+  const raw = textarea.value.trim();
+  if (!raw) { alert('请填写笔记ID'); return; }
+  const ids = [];
+  raw.split(/[,\n，\r]+/).forEach(line => {
+    line = line.trim();
+    if (!line) return;
+    const m = line.match(/explore\/([a-f0-9]{24})/);
+    ids.push(m ? m[1] : line);
+  });
+  if (!ids.length) { alert('未识别到有效笔记ID'); return; }
+  const btn = document.getElementById('add-note-btn');
+  btn.disabled = true; btn.textContent = `添加中 (0/${ids.length})…`;
+  try {
+    // 先获取已有投稿，检查重复
+    const existingSubs = await apiFetch('/api/submissions?topic_id=' + topicId);
+    const existingNids = new Set((existingSubs || []).filter(s => s.submit_type === 'existing').map(s => s.note_id));
+    let added = 0, skipped = 0;
+    for (const nid of ids) {
+      if (existingNids.has(nid)) { skipped++; continue; }
+      try {
+        const noteData = {};
+        try { const nr = await fetch("/api/fetch_note?note_id=" + encodeURIComponent(nid), {credentials:"include"}).then(r=>r.json()); Object.assign(noteData, nr); } catch(e) {}
+        const createResp = await fetch('/api/submissions', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic_id: parseInt(topicId),
+            submit_type: 'existing',
+            note_id: nid,
+            note_link: 'https://www.xiaohongshu.com/explore/' + nid,
+            profile_link: '',
+            contact: '运营添加',
+            status: 'approved',
+            cover_url: noteData.cover || '',
+            likes: noteData.likes || 0,
+            title: noteData.title || noteData.note_title || '',
+            creator_name: noteData.author || ''
+          })
+        });
+        if (!createResp.ok) {
+          const errBody = await createResp.json().catch(() => ({}));
+          throw new Error(errBody.error || `HTTP ${createResp.status}`);
+        }
+        added++;
+      } catch(e) { console.warn('创建 submission 失败:', nid, e); skipped++; }
+      btn.textContent = `添加中 (${added + skipped}/${ids.length})…`;
+    }
+    let msg = `成功添加 ${added} 条已有投稿`;
+    if (skipped > 0) msg += `，跳过 ${skipped} 条重复`;
+    alert(msg);
+    closeAddNoteModal();
+    // 刷新数据
+    const freshSubs = await apiFetch('/api/submissions');
+    if (freshSubs) state.submissions = Array.isArray(freshSubs) ? freshSubs : [];
+    const freshTopics = await apiFetch('/api/admin/topics');
+    if (freshTopics) {
+      state.topics = Array.isArray(freshTopics) ? freshTopics : (freshTopics.topics || []);
+    }
+    openTopicDetail(topicId);
+    renderApprovedNotes();
+    renderStatsTable();
+  } catch(e) {
+    alert('添加失败: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = ' 批量添加';
+  }
+}
+// 批量笔记ID输入失焦时预览
+document.getElementById('add-note-note-ids').addEventListener('blur', async function() {
+  const preview = document.getElementById('add-note-preview');
+  const raw = this.value.trim();
+  if (!raw) { preview.style.display = 'none'; return; }
+  const ids = [];
+  raw.split(/[,\n，\r]+/).forEach(line => {
+    line = line.trim();
+    if (!line) return;
+    const m = line.match(/explore\/([a-f0-9]{24})/);
+    ids.push(m ? m[1] : line);
+  });
+  if (!ids.length) return;
+  // 并行获取所有笔记信息
+  const results = await Promise.allSettled(ids.map(async nid => {
+    const resp = await fetch('/api/fetch_note?note_id=' + encodeURIComponent(nid), {credentials:'include'});
+    if (!resp.ok) throw new Error();
+    return { nid, ...(await resp.json()) };
+  }));
+  preview.innerHTML = results.map(r => {
+    if (r.status === 'rejected') return '<div style="padding:6px;color:var(--danger);font-size:12px"> 获取失败</div>';
+    const d = r.value;
+    return '<div style="display:flex;gap:8px;align-items:center;padding:6px;border-bottom:1px solid var(--border)">'
+      + (d.cover ? '<img src="'+escHtml(d.cover)+'" style="width:40px;height:40px;object-fit:cover;border-radius:4px">' : '<div style="width:40px;height:40px;background:#e5e7eb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px">📝</div>')
+      + '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(d.title||d.nid)+'</div><div style="font-size:10px;color:var(--text-light)">❤️'+(d.likes||0)+'</div></div></div>';
+  }).join('');
+  preview.style.display = 'block';
+});
+
+</script>
+
+<!-- 选题详情面板 Overlay -->
+<div class="edit-overlay" id="detail-overlay" onclick="if(event.target===this)closeTopicDetail()" style="z-index:1500">
+  <div id="detail-panel" style="
+    position:fixed;inset:0;
+    background:var(--bg-main,#fff);overflow-y:auto;
+    padding:28px;z-index:1600;
+  "></div>
+</div>
+
+<!-- 投稿详情全屏面板 -->
+<div class="edit-overlay" id="sub-detail-overlay" style="z-index:1600" onclick="if(event.target===this)closeSubDetail()">
+  <div style="position:fixed;inset:0;background:var(--bg-main,#f5f5f7);overflow-y:auto;padding:0">
+    <!-- 顶部导航 -->
+    <div style="position:sticky;top:0;z-index:10;background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:16px 24px">
+      <div style="max-width:800px;margin:0 auto;display:flex;align-items:center;justify-content:space-between">
+        <button class="btn btn-ghost" onclick="closeSubDetail()" style="font-size:14px">← 返回审核列表</button>
+        <span style="font-size:16px;font-weight:600;color:var(--text-sub)">报名详情</span>
+        <div id="sub-detail-actions"></div>
+      </div>
+    </div>
+    <!-- 内容区域 -->
+    <div id="sub-detail-content" style="max-width:800px;margin:0 auto;padding:24px 20px 60px"></div>
+  </div>
+</div>
+</div>
+
+<!-- 运营投稿面板 -->
+<div class="edit-overlay" id="op-submit-overlay" style="z-index:1700;display:none;justify-content:center;align-items:flex-start" onclick="if(event.target===this)closeOpSubmit()">
+  <div style="background:#fff;border-radius:16px;max-width:600px;width:95vw;margin-top:60px;padding:28px;position:relative">
+    <button onclick="closeOpSubmit()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-sub)">×</button>
+    <div style="font-size:20px;font-weight:700;margin-bottom:6px">📝 运营投稿</div>
+    <div style="font-size:13px;color:var(--text-sub);margin-bottom:20px">以运营身份为选题提交作品/脚本思路</div>
+    <div id="op-submit-success" class="alert alert-success" style="display:none">投稿成功！</div>
+    <div id="op-submit-error" class="alert alert-error" style="display:none">投稿失败，请重试</div>
+    <input type="hidden" id="op-submit-topic-id">
+    <div class="form-field" style="margin-bottom:14px">
+      <label>投稿类型</label>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm op-submit-type-btn active" data-type="work" onclick="selectOpSubmitType(this)">🎬 已有作品</button>
+        <button class="btn btn-outline btn-sm op-submit-type-btn" data-type="script" onclick="selectOpSubmitType(this)">💡 脚本思路</button>
+      </div>
+    </div>
+    <!-- 已有作品表单 -->
+    <div id="op-submit-work-form">
+      <div class="form-field" style="margin-bottom:14px">
+        <label>笔记ID / 笔记链接</label>
+        <input type="text" id="op-submit-note-link" placeholder="如 68f3b9ec000000001f01234a 或完整链接">
+      </div>
+      <div class="form-field" style="margin-bottom:14px">
+        <label>小红书主页链接</label>
+        <input type="text" id="op-submit-profile-link" placeholder="https://www.xiaohongshu.com/user/profile/xxx">
+      </div>
+    </div>
+    <!-- 脚本思路表单 -->
+    <div id="op-submit-script-form" style="display:none">
+      <div class="form-field" style="margin-bottom:14px">
+        <label>联系方式</label>
+        <input type="text" id="op-submit-contact" placeholder="薯号/微信">
+      </div>
+      <div class="form-field" style="margin-bottom:14px">
+        <label>脚本思路</label>
+        <textarea id="op-submit-draft" rows="6" placeholder="详细描述你的创作思路..."></textarea>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" id="op-submit-btn" onclick="doOpSubmit()">提交投稿</button>
+  </div>
+</div>
+<!-- 添加笔记弹窗 -->
+<div class="edit-overlay" id="add-note-overlay" style="z-index:1800;display:none;justify-content:center;align-items:center" onclick="if(event.target===this)closeAddNoteModal()">
+  <div style="background:#fff;border-radius:16px;max-width:500px;width:95vw;padding:28px;position:relative">
+    <button onclick="closeAddNoteModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-sub)"> </button>
+    <div style="font-size:18px;font-weight:700;margin-bottom:6px"> 添加已有投稿</div>
+    <div style="font-size:13px;color:var(--text-sub);margin-bottom:20px">以运营身份为该选题添加已有投稿笔记</div>
+    <input type="hidden" id="add-note-topic-id">
+    <div style="margin-bottom:14px">
+      <label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px">笔记ID / 链接（每行一个，支持批量）</label>
+      <textarea id="add-note-note-ids" rows="4" class="form-control" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical" placeholder="每行一个笔记ID或链接&#10;如：68f3b9ec000000001f01234a&#10;或：https://www.xiaohongshu.com/explore/68f3b9ec..."></textarea>
+    </div>
+    
+    <div id="add-note-preview" style="display:none;margin-bottom:14px;max-height:200px;overflow-y:auto"></div>
+    <div style="margin-bottom:14px;padding:10px 14px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;font-size:13px;color:#166534">📝 添加的笔记将作为「已有投稿」，显示在投稿列表和数据跟进中</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" id="add-note-btn" onclick="doAddNotes()"> 批量添加</button>
+      <button class="btn btn-ghost" onclick="closeAddNoteModal()">取消</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
