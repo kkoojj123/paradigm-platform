@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>游戏IF剧场——游戏二创选题企划平台</title>
+<style>
+:root {
+  --red: #E63E6D;
+  --red-hover: #c52d5a;
+  --red-light: #FFF0F3;
+  --bg: #F9FAFB;
+  --bg-gradient: linear-gradient(135deg, #FFF0F3 0%, #F9FAFB 50%, #F0F4FF 100%);
+  --card: #FFFFFF;
+  --card2: #F3F4F6;
+  --border: #E5E7EB;
+  --border-focus: #E63E6D;
+  --text1: #111827;
+  --text2: #374151;
+  --text3: #6B7280;
+  --text4: #9CA3AF;
+  --green: #10B981;
+  --green-bg: #ECFDF5;
+  --orange: #F59E0B;
+  --orange-bg: #FFFBEB;
+  --blue: #3B82F6;
+  --blue-bg: #EFF6FF;
+  --purple: #7C3AED;
+  --purple-bg: #EDE9FE;
+  --radius: 16px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg-gradient); background-attachment: fixed; color: var(--text1); font-family: -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; min-height: 100vh; }
+
+/* ===== 导航 ===== */
+.navbar {
+  position: relative;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-brand {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text1);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+}
+.nav-tab {
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 15px;
+  transition: all .2s;
+  border: none;
+  background: none;
+}
+.nav-tab:hover { background: var(--card2); color: var(--text1); }
+.nav-tab.active { background: var(--card2); color: var(--text1); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.btn-publish {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity .2s;
+}
+.btn-publish:hover { opacity: .85; }
+.btn-login {
+  background: var(--card2);
+  color: var(--text1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-login:hover { border-color: var(--blue); color: var(--blue); }
+.user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.user-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--card2);
+  border: 2px solid var(--border);
+  object-fit: cover;
+}
+.user-name { font-size: 14px; color: var(--text2); }
+.user-dropdown {
+  position: relative;
+}
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  min-width: 140px;
+  display: none;
+  z-index: 200;
+  box-shadow: var(--shadow-hover);
+}
+.dropdown-menu.show { display: block; }
+.dropdown-item {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all .2s;
+}
+.dropdown-item:hover { background: var(--card2); color: var(--text1); }
+
+/* ===== 主内容 ===== */
+.main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+/* ===== 筛选条 ===== */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all .2s;
+}
+.filter-btn:hover { border-color: var(--red); color: var(--red); }
+.filter-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+.filter-btn.source-active { background: var(--red); border-color: var(--red); color: #fff; }
+/* .filter-btn.source-active merged above */
+
+/* ===== 卡片网格 ===== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* ===== 类型/来源 badge ===== */
+.badge-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.type-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+.type-topic { background: #DBEAFE; color: #1D4ED8; }
+.type-plan  { background: #EDE9FE; color: #5B21B6; }
+.type-trend  { background: #D1FAE5; color: #059669; }
+.type-hot   { background: rgba(230,62,109,.15); color: var(--red); }
+
+.source-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.source-operator { background: #F3F4F6; color: #6B7280; }
+.source-brand { background: #FEF3C7; color: #92400E; }
+.source-creator { background: #FFF7ED; color: #C2410C; }
+
+.reward-badge {
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--red-light);
+  color: var(--red);
+  font-weight: 700;
+}
+
+/* ===== 选题/企划卡片 ===== */
+.topic-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0;
+  transition: all .25s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+.topic-card-body {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.topic-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(230,62,109,.3);
+  box-shadow: var(--shadow-hover);
+}
+.card-header { display: flex; align-items: center; justify-content: space-between; }
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text1);
+  line-height: 1.4;
+}
+.card-desc {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.card-stats { font-size: 13px; color: var(--text3); }
+.card-actions { display: flex; gap: 8px; }
+.btn-sm {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  font-weight: 500;
+  transition: all .2s;
+}
+.btn-outline {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+.btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+.btn-primary { background: var(--red); color: #fff; }
+.btn-primary:hover { opacity: .85; }
+
+/* ===== 热点卡片 ===== */
+.hot-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: all .25s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.hot-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(230,62,109,.3);
+}
+.hot-card-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  z-index: 2;
+}
+.hot-card-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+.hot-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--card2);
+  display: block;
+}
+.hot-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #DBEAFE, #EDE9FE);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+.hot-body { padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+/* 范式卡片代表笔记列表 */
+.hot-samples { margin-top: 2px; }
+.hot-samples-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+.hot-samples-list { display: flex; flex-direction: column; gap: 6px; }
+.hot-sample-item { display: flex; align-items: center; gap: 8px; }
+.hot-sample-cover {
+  width: 36px; height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--card2);
+  flex-shrink: 0;
+}
+.hot-sample-info { flex: 1; min-width: 0; }
+.hot-sample-title {
+  font-size: 12px; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hot-sample-meta { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.hot-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text1);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hot-meta { display: flex; align-items: center; justify-content: space-between; }
+.hot-likes { font-size: 13px; color: var(--text3); }
+.hot-likes .num { color: var(--orange); font-weight: 700; }
+.game-ip-badge {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: var(--green-bg);
+  color: var(--green);
+  font-weight: 500;
+}
+.btn-create {
+  width: 100%;
+  padding: 8px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity .2s;
+  margin-top: auto;
+}
+.btn-create:hover { opacity: .85; }
+
+/* ===== 空状态 ===== */
+.empty-state {
+  text-align: center;
+  padding: 80px 0;
+  color: var(--text3);
+  font-size: 16px;
+}
+.empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+
+/* ===== 卡片封面 ===== */
+.card-cover-wrap {
+  width: 100%;
+  max-height: 200px;
+  border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-cover-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  display: block;
+}
+.card-cover-placeholder {
+  width: 100%;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+}
+.card-cover-topic { background: linear-gradient(135deg, #DBEAFE, #EDE9FE); }
+.card-cover-plan  { background: linear-gradient(135deg, #FEF3C7, #FEE2E2); }
+
+/* 详情封面横幅 */
+.detail-cover-banner {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+}
+
+/* ===== 详情视图 ===== */
+#detail-view {
+  display: none;
+  padding-bottom: 80px; /* 留出固定底栏 */
+  background: var(--bg);
+}
+#detail-view.show { display: block; }
+.detail-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 20px;
+  transition: color .2s;
+}
+.detail-back-btn:hover { color: var(--text1); }
+.detail-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text1);
+  line-height: 1.4;
+  margin: 16px 0 14px;
+}
+.detail-desc-text {
+  font-size: 17px;
+  color: var(--text2);
+  line-height: 1.9;
+  margin-bottom: 20px;
+}
+.detail-benefits-box {
+  background: var(--green-bg);
+  border: 1px solid rgba(16,185,129,.25);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--green);
+  margin-bottom: 14px;
+}
+.detail-reward-box {
+  margin-bottom: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.detail-reward-rules {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-top: 8px;
+}
+
+/* 参考笔记横向滚动 */
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text1);
+  margin-bottom: 14px;
+}
+.ref-notes-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--card2) transparent;
+}
+.ref-notes-scroll::-webkit-scrollbar { height: 6px; }
+.ref-notes-scroll::-webkit-scrollbar-track { background: transparent; }
+.ref-notes-scroll::-webkit-scrollbar-thumb { background: var(--card2); border-radius: 3px; }
+.ref-note-card {
+  min-width: 160px;
+  max-width: 160px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.ref-note-card-cover {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+  background: var(--card2);
+}
+.ref-note-card-cover-placeholder {
+  width: 160px;
+  height: 160px;
+  background: linear-gradient(135deg, #DBEAFE, #EDE9FE);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+}
+.ref-note-card-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+.ref-note-card-title {
+  font-size: 13px;
+  color: var(--text1);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ref-note-card-likes { font-size: 12px; color: var(--text3); }
+.ref-note-card-author { font-size: 12px; color: var(--text3); }
+.ref-note-card-link {
+  font-size: 12px;
+  color: var(--blue);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  margin-top: 4px;
+}
+.ref-note-card-link:hover { text-decoration: underline; }
+
+/* 已有投稿区 */
+.submissions-section { margin-top: 28px; }
+.submissions-login-hint {
+  background: var(--card2);
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 14px;
+}
+.submissions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.sub-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.sub-card-cover {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--card2);
+  display: block;
+}
+.sub-card-body { padding: 8px; }
+.sub-card-author { font-size: 12px; color: var(--text3); }
+.sub-card-likes { font-size: 12px; color: var(--orange); }
+
+/* 详情底部操作栏 */
+.detail-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -1px 8px rgba(0,0,0,0.06);
+  padding: 12px 20px;
+  z-index: 90;
+  display: none;
+}
+.detail-action-bar.show { display: flex; align-items: center; justify-content: center; }
+.btn-participate {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 40px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.btn-participate:hover { opacity: .88; }
+
+/* ===== 弹窗 ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  transform: translateY(20px);
+  transition: transform .2s;
+}
+.modal-overlay.show .modal { transform: translateY(0); }
+.modal-lg { max-width: 600px; }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.modal-title { font-size: 18px; font-weight: 700; }
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+.modal-close:hover { color: var(--text1); }
+
+/* 弹窗tab */
+.modal-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--card2);
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.modal-tab {
+  flex: 1;
+  padding: 8px;
+  border-radius: 7px;
+  border: none;
+  background: none;
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all .2s;
+}
+.modal-tab.active { background: var(--card); color: var(--text1); box-shadow: var(--shadow); }
+
+/* 表单 */
+.form-group { margin-bottom: 18px; }
+.form-label { display: block; margin-bottom: 7px; font-size: 14px; color: var(--text2); }
+.form-control {
+  width: 100%;
+  background: #FAFAFA;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text1);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-control:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(230,62,109,0.1); }
+.form-control::placeholder { color: var(--text3); }
+textarea.form-control { min-height: 90px; resize: vertical; }
+.join-scroll-area::-webkit-scrollbar { display: none; }
+
+
+/* 上传图片框 */
+.upload-box {
+  width: 100%;
+  border: 2px dashed #D1D5DB;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative;
+  background: #FAFAFA;
+}
+.upload-box:hover { border-color: var(--red); background: var(--red-light); }
+.upload-box.dragover { border-color: var(--red); background: var(--red-light); }
+.upload-box input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.upload-box-icon { font-size: 32px; margin-bottom: 6px; }
+.upload-box-text { font-size: 13px; color: var(--text3); }
+.upload-preview {
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 160px;
+  display: none;
+}
+.upload-preview img {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+}
+
+/* 认证标签 */
+.certified-badge {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: #FEF3C7;
+  color: #92400E;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.btn-block {
+  width: 100%;
+  padding: 11px;
+  border-radius: 9px;
+  border: none;
+  background: var(--red);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .2s;
+  margin-top: 4px;
+}
+.btn-block:hover { opacity: .88; }
+.btn-block:disabled { opacity: .5; cursor: not-allowed; }
+
+/* 类型选择 */
+.type-selector { display: flex; gap: 12px; margin-bottom: 20px; }
+.type-option {
+  flex: 1;
+  padding: 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+}
+.type-option:hover { border-color: var(--red); }
+.type-option.selected { border-color: var(--red); background: var(--red-light); }
+.type-option .type-icon { font-size: 28px; margin-bottom: 6px; }
+.type-option .type-name { font-size: 14px; font-weight: 600; }
+
+/* 参与弹窗 - 参与方式选择 */
+.join-mode-selector { display: flex; gap: 12px; margin-bottom: 20px; }
+.join-mode-btn {
+  flex: 1;
+  padding: 16px 12px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+  background: var(--card2);
+  color: var(--text1);
+}
+.join-mode-btn:hover { border-color: var(--red); }
+.join-mode-btn.selected { border-color: var(--red); background: var(--red-light); color: var(--red); }
+.join-mode-btn .jm-icon { font-size: 26px; margin-bottom: 6px; }
+.join-mode-btn .jm-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.join-mode-btn .jm-sub { font-size: 12px; color: var(--text3); }
+/* 参与表单区动画 */
+.join-form-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .35s ease, opacity .25s ease;
+}
+.join-form-panel.visible {
+  max-height: 600px;
+  opacity: 1;
+}
+
+/* 参考笔记列表（发布弹窗内） */
+.ref-notes-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.ref-note-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+}
+.ref-note-cover {
+  width: 48px; height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ref-note-title { flex: 1; font-size: 13px; color: var(--text2); line-height: 1.4; }
+.btn-icon {
+  background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; padding: 4px;
+}
+.btn-icon:hover { color: var(--red); }
+.ref-input-row { display: flex; gap: 8px; }
+.ref-input-row .form-control { flex: 1; }
+
+/* 投稿预览 */
+.note-preview {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.preview-cover {
+  width: 60px; height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.preview-info .preview-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.preview-info .preview-meta { font-size: 13px; color: var(--text3); }
+
+/* 消息提示 */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-hover);
+  padding: 12px 24px;
+  font-size: 14px;
+  color: var(--text1);
+  z-index: 9999;
+  opacity: 0;
+  transition: all .3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error { border-color: var(--red); color: var(--red); }
+
+/* loading */
+.loading { text-align: center; padding: 60px; color: var(--text3); font-size: 15px; }
+
+/* ===== 我的投稿 ===== */
+.my-subs-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+}
+.my-subs-empty .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.my-sub-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  cursor: pointer;
+  transition: box-shadow .2s;
+}
+.my-sub-card:hover { box-shadow: var(--shadow-hover); }
+.my-sub-cover {
+  width: 80px; height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--card2);
+  flex-shrink: 0;
+}
+.my-sub-info { flex: 1; min-width: 0; }
+.my-sub-topic { font-size: 16px; font-weight: 600; color: var(--text1); margin-bottom: 6px; }
+.my-sub-meta { font-size: 13px; color: var(--text3); margin-bottom: 8px; }
+.my-sub-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.my-sub-status.pending { background: #FEF3C7; color: #B45309; }
+.my-sub-status.approved { background: #D1FAE5; color: #065F46; }
+.my-sub-status.rejected { background: #FEE2E2; color: #991B1B; }
+/* 导航栏居中大标题 */
+.navbar-center-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 0.2px;
+  pointer-events: none;
+}
+
+/* 发起选题 CTA 栏 */
+.publish-cta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 10px 0 14px;
+  margin-bottom: 4px;
+}
+.btn-cta-publish {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+.btn-cta-publish:hover {
+  background: var(--red-hover, #c52d5a);
+  transform: translateY(-1px);
+}
+
+</style>
+</head>
+<body>
+
+<!-- 导航 -->
+<nav class="navbar">
+  <a class="nav-brand" href="/">🎬 游戏IF剧场</a>
+  <div class="navbar-center-title">游戏二创选题企划平台</div>
+  <div class="nav-right">
+    <div id="navUser"></div>
+  </div>
+</nav>
+
+<!-- 主内容 -->
+<main class="main">
+
+  <!-- ===== 列表视图 ===== -->
+  <div id="list-view">
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <!-- 左侧：类型筛选 -->
+      <div class="filter-group" id="type-filters">
+        <button class="filter-btn active" onclick="setTypeFilter('', this)">全部</button>
+        <button class="filter-btn" onclick="setTypeFilter('topic', this)">选题</button>
+        <button class="filter-btn" onclick="setTypeFilter('plan', this)">企划</button>
+        <button class="filter-btn" onclick="setTypeFilter('trend', this)">趋势</button>
+      </div>
+      <!-- 右侧：来源筛选 + 我的投稿 -->
+      <div class="filter-group" id="source-filters">
+        <button class="filter-btn active" onclick="setSourceFilter('', this)">全部来源</button>
+        <button class="filter-btn" onclick="setSourceFilter('operator', this)">运营发起</button>
+        <button class="filter-btn" onclick="setSourceFilter('brand', this)">厂商发起</button>
+        <button class="filter-btn" onclick="setSourceFilter('creator', this)">创作者发起</button>
+      </div>
+      <button class="filter-btn" id="my-sub-btn" onclick="toggleMySubmissions()" style="display:none">📋 我的投稿</button>
+    </div>
+    <!-- 发起号召栏 -->
+    <div class="publish-cta-bar">
+      <span style="font-size:16px;font-weight:600;color:var(--text1)">有好的创作方向？</span>
+      <button class="btn-cta-publish" onclick="openPublish()">✏️ 发起选题 / 企划 / 趋势</button>
+    </div>
+    <!-- 卡片网格 -->
+    <div id="main-grid" class="card-grid">
+      <div class="loading">加载中...</div>
+    </div>
+    <!-- 我的投稿视图 -->
+    <div id="my-subs-view" style="display:none">
+      <div class="section-title" style="margin-bottom:16px"> 我的投稿</div>
+      <div id="my-subs-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== 详情视图 ===== -->
+  <div id="detail-view">
+    <!-- 返回按钮 -->
+    <button class="detail-back-btn" onclick="backToList()">← 返回</button>
+
+    <!-- 封面横幅 -->
+    <div id="dv-cover-banner" style="display:none"></div>
+
+    <!-- 类型 + 来源 badge -->
+    <div class="badge-row">
+      <span id="dv-type-badge" class="type-badge"></span>
+      <span id="dv-source-badge" class="source-badge"></span>
+    </div>
+
+    <!-- 标题 -->
+    <h1 class="detail-title" id="dv-title"></h1>
+
+    <!-- 描述 -->
+    <p class="detail-desc-text" id="dv-desc"></p>
+
+    <!-- 权益 -->
+    <div id="dv-benefits" class="detail-benefits-box" style="display:none"></div>
+
+    <!-- 奖励 -->
+    <div id="dv-reward" class="detail-reward-box" style="display:none">
+      <span class="reward-badge" id="dv-reward-amount"></span>
+      <p class="detail-reward-rules" id="dv-reward-rules" style="display:none"></p>
+    </div>
+
+    <!-- 参考笔记区 -->
+    <div id="dv-ref-section" style="display:none;margin-top:28px">
+      <div class="section-title" id="dv-ref-title">📌 参考笔记</div>
+      <div class="ref-notes-scroll" id="dv-ref-scroll"></div>
+    </div>
+
+    <!-- 已有投稿区 -->
+    <div class="submissions-section">
+      <div class="section-title" id="dv-subs-title">👥 已有投稿</div>
+      <div id="dv-subs-content"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- 详情底部操作栏 -->
+<div class="detail-action-bar" id="detail-action-bar">
+  <button class="btn-participate" id="detail-participate-btn" onclick="openJoinFromDetail()">✏️ 参与这个选题</button>
+</div>
+
+<!-- ===== 登录弹窗 ===== -->
+<div class="modal-overlay" id="loginModal" onclick="closeModal(event, 'loginModal')">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title" id="login-modal-title">创作者登录</span>
+      <button class="modal-close" onclick="hideModal('loginModal')">×</button>
+    </div>
+
+    <!-- 创作者登录/注册 tabs -->
+    <div class="modal-tabs" id="creator-auth-tabs">
+      <button class="modal-tab active" onclick="switchCreatorAuthTab('login', this)">已有账号，登录</button>
+      <button class="modal-tab" onclick="switchCreatorAuthTab('register', this)">新用户，注册</button>
+    </div>
+
+    <!-- 创作者登录面板 -->
+    <div id="creator-login-panel">
+      <div class="form-group">
+        <label class="form-label">小红书昵称 / 用户名 <span style="color:var(--red)">*</span></label>
+        <input class="form-control" id="creator-login-name" placeholder="输入您的昵称" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码 <span style="color:var(--red)">*</span></label>
+        <input class="form-control" id="creator-login-password" type="password" placeholder="请输入密码" />
+      </div>
+      <button class="btn-block" onclick="doCreatorLogin()">登录</button>
+      <div style="text-align:center;margin-top:14px;font-size:14px;color:var(--text3)">
+        没有账号？<a href="#" style="color:var(--blue)" onclick="event.preventDefault();switchCreatorAuthTab('register', document.querySelectorAll('#creator-auth-tabs .modal-tab')[1])">去注册</a>
+      </div>
+    </div>
+
+    <!-- 创作者注册面板 -->
+    <div id="creator-register-panel" style="display:none">
+      <div class="form-group">
+        <label class="form-label">小红书昵称 <span style="color:var(--red)">*</span></label>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px">必须和小红书显示名称相同</div>
+        <input class="form-control" id="reg-creator-name" placeholder="您在小红书上的昵称" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">小红书主页链接 <span style="color:var(--red)">*</span></label>
+        <input class="form-control" id="reg-creator-profile" placeholder="https://www.xiaohongshu.com/user/profile/..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">上传小红书主页截图 <span style="color:var(--red)">*</span></label>
+        <div class="upload-box" onclick="document.getElementById('reg-screenshot-input').click()" ondragover="event.preventDefault()" ondrop="onScreenshotDrop(event)">
+          <input type="file" id="reg-screenshot-input" accept="image/*" style="display:none" onchange="onScreenshotChange(this)" />
+          <div class="upload-box-icon">🖼️</div>
+          <div class="upload-box-text">点击上传或拖拽截图（展示个人主页）</div>
+        </div>
+        <div class="upload-preview" id="reg-screenshot-preview">
+          <img id="reg-screenshot-thumb" src="" alt="" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">设置登录密码 <span style="color:var(--red)">*</span> <span style="font-size:12px;color:var(--text3)">（至少6位）</span></label>
+        <input class="form-control" id="reg-creator-password" type="password" placeholder="请设置登录密码，至少6位" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">确认密码 <span style="color:var(--red)">*</span></label>
+        <input class="form-control" id="reg-creator-password2" type="password" placeholder="再次输入密码" />
+      </div>
+      <button class="btn-block" id="reg-creator-btn" onclick="doCreatorRegister()">注册</button>
+      <div style="text-align:center;margin-top:14px;font-size:14px;color:var(--text3)">
+        已有账号？<a href="#" style="color:var(--blue)" onclick="event.preventDefault();switchCreatorAuthTab('login', document.querySelectorAll('#creator-auth-tabs .modal-tab')[0])">去登录</a>
+      </div>
+    </div>
+
+    <!-- 厂商/运营登录（通过其他入口触发，隐藏在此） -->
+    <div id="login-brand" style="display:none">
+      <div class="form-group">
+        <label class="form-label">用户名</label>
+        <input class="form-control" id="brand-username" placeholder="请输入用户名" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input class="form-control" id="brand-password" type="password" placeholder="请输入密码" />
+      </div>
+      <button class="btn-block" onclick="doLogin('brand')">登录</button>
+    </div>
+    <div id="login-operator" style="display:none">
+      <div class="form-group">
+        <label class="form-label">运营密码</label>
+        <input class="form-control" id="op-password" type="password" placeholder="请输入运营密码" />
+      </div>
+      <button class="btn-block" onclick="doLogin('operator')">登录</button>
+    </div>
+    <!-- 旧版兼容占位 -->
+    <div id="login-creator" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ===== 注册弹窗（废弃占位） ===== -->
+<div class="modal-overlay" id="registerModal" onclick="closeModal(event, 'registerModal')">
+  <div class="modal" style="display:none"></div>
+</div>
+
+<!-- ===== 发布弹窗 ===== -->
+<div class="modal-overlay" id="publishModal" onclick="closeModal(event, 'publishModal')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">发布内容</span>
+      <button class="modal-close" onclick="hideModal('publishModal')">×</button>
+    </div>
+
+    <!-- 类型选择 -->
+    <div id="publish-type-selector" class="type-selector">
+      <div class="type-option selected" onclick="selectPublishType('topic', this)">
+        <div class="type-icon">💡</div>
+        <div class="type-name">选题</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">分享你发现的有趣创作方向，被更多人响应可获官方认证 ✨</div>
+      </div>
+      <div class="type-option" onclick="selectPublishType('plan', this)">
+        <div class="type-icon">🏆</div>
+        <div class="type-name">企划</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">发起一个大家一起参与的企划，吸引更多人加入！</div>
+      </div>
+      <div class="type-option" onclick="selectPublishType('trend', this)">
+        <div class="type-icon">📊</div>
+        <div class="type-name">趋势</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">分享你发现的游戏内容趋势，帮助更多创作者找到方向！</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">标题 *</label>
+      <input class="form-control" id="pub-title" placeholder="请输入标题" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">描述</label>
+      <textarea class="form-control" id="pub-desc" placeholder="详细描述创作方向、要求等..."></textarea>
+    </div>
+
+
+
+
+    <div class="form-group">
+      <label class="form-label">封面图</label>
+      <div id="idx-cover-box" onclick="document.getElementById('idx-cover-input').click()" style="cursor:pointer;border:2px dashed var(--border);border-radius:10px;overflow:hidden;background:var(--card2,#f3f4f6);min-height:90px;display:flex;align-items:center;justify-content:center;position:relative;transition:border-color .2s" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor=''">
+        <input type="file" id="idx-cover-input" accept="image/*" style="display:none" onchange="onIdxCoverChange(this)" />
+        <div id="idx-cover-ph" style="text-align:center;color:var(--text3);padding:16px">
+          <div style="font-size:24px;margin-bottom:4px">🖼️</div>
+          <div style="font-size:12px">点击上传封面</div>
+        </div>
+        <img id="idx-cover-img" src="" style="display:none;width:100%;max-height:140px;object-fit:cover" />
+      </div>
+      <div style="margin-top:6px;display:flex;gap:6px">
+        <input class="form-control" id="idx-cover-url" placeholder="或输入图片URL" style="flex:1;height:32px;font-size:12px" oninput="onIdxCoverUrl(this)" />
+        <button class="btn-sm btn-outline" type="button" onclick="clearIdxCover()">清除</button>
+      </div>
+    </div>
+    <!-- 参考笔记 -->
+    <div class="form-group">
+      <label class="form-label">参考笔记（最多20个）</label>
+      <div class="ref-input-row">
+        <input class="form-control" id="ref-note-input" placeholder="输入笔记ID" onkeydown="if(event.key==='Enter')addRefNote()" />
+        <button class="btn-sm btn-outline" onclick="addRefNote()">添加</button>
+      </div>
+      <div class="ref-notes-list" id="ref-notes-list"></div>
+    </div>
+
+    <button class="btn-block" onclick="doPublish()">发布</button>
+  </div>
+</div>
+
+<!-- ===== 参与弹窗（全新） ===== -->
+<div class="modal-overlay" id="joinModal" onclick="closeModal(event, 'joinModal')">
+  <div class="modal" style="max-width:500px;overflow:hidden;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <span class="modal-title" id="join-modal-title">参与</span>
+      <button class="modal-close" onclick="hideModal('joinModal')">×</button>
+    </div>
+
+    <!-- 内容区：内部滚动，不展示右侧滚动条 -->
+    <div style="flex:1;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none" class="join-scroll-area">
+    <!-- Step 1: 参与方式选择 -->
+    <div style="font-size:13px;color:var(--text3);margin-bottom:10px">选择参与方式</div>
+    <div class="join-mode-selector">
+      <button class="join-mode-btn selected" id="join-btn-existing" onclick="selectJoinMode('existing')">
+        <div class="jm-icon">📹</div>
+        <div class="jm-title">提交已有作品</div>
+        <div class="jm-sub">我已经做了，来投稿</div>
+      </button>
+      <button class="join-mode-btn" id="join-btn-draft" onclick="selectJoinMode('draft')">
+        <div class="jm-icon">📝</div>
+        <div class="jm-title">先提交脚本思路</div>
+        <div class="jm-sub">还没做，想先聊聊</div>
+      </button>
+    </div>
+
+    <!-- Step 2A: 已有作品 -->
+    <div class="join-form-panel visible" id="join-panel-existing">
+      <div class="form-group">
+        <label class="form-label">笔记链接 <span style="color:var(--red)">*</span></label>
+        <input class="form-control" id="join-note-link" placeholder="https://www.xiaohongshu.com/explore/..."
+          oninput="onJoinNoteLinkInput(this.value)" />
+      </div>
+      <div id="join-note-preview" style="display:none" class="note-preview">
+        <img id="join-preview-cover" class="preview-cover" src="" alt="" />
+        <div class="preview-info">
+          <div class="preview-title" id="join-preview-title">加载中...</div>
+          <div class="preview-meta" id="join-preview-meta"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">作品标题（自动识别，可手动修改）</label>
+        <input class="form-control" id="join-note-title" placeholder="作品标题" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">小红书主页链接（选填）</label>
+        <input class="form-control" id="join-existing-profile" placeholder="https://www.xiaohongshu.com/user/profile/..." />
+      </div>
+    </div>
+
+    <!-- Step 2B: 脚本思路 -->
+    <div class="join-form-panel" id="join-panel-draft">
+      <div class="form-group">
+        <label class="form-label">小红书主页链接 <span style="color:var(--red)">*</span></label>
+        <input class="form-control" id="join-draft-profile" placeholder="https://www.xiaohongshu.com/user/profile/..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">联系方式 <span style="color:var(--red)">*</span></label>
+        <input class="form-control" id="join-draft-contact" placeholder="微信号 / 手机号" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">脚本思路 <span style="color:var(--red)">*</span> <span style="font-size:12px;color:var(--text3)">(最多1000字)</span></label>
+        <textarea class="form-control" id="join-draft-content" rows="4"
+          style="resize:none;height:120px;min-height:120px"
+          placeholder="描述你想做的内容方向、大概的情节设计、为什么适合这个选题..."
+          oninput="updateJoinDraftCount()"></textarea>
+        <div style="text-align:right;font-size:12px;color:var(--text3);margin-top:4px">
+          <span id="join-draft-count">0</span> / 1000字
+        </div>
+      </div>
+    </div>
+
+        </div><!-- /join-scroll-area -->
+    <button class="btn-block" style="margin-top:12px;flex-shrink:0" id="join-submit-btn" onclick="doJoinSubmit()">提交参与申请</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 全局状态 =====
+let currentUser = null;
+let allItems = [];          // 合并后的所有条目
+let currentTypeFilter = ''; // 类型筛选：'' | 'topic' | 'plan' | 'hot'
+let currentSourceFilter = '';// 来源筛选：'' | 'operator' | 'brand' | 'creator'
+let publishType = 'topic';
+let refNotes = [];
+let currentDetailItem = null;
+let submitTopicId = null;
+let submitNoteId = null;
+// 参与弹窗全局变量
+let currentJoinTopicId = null;
+let currentJoinTopicTitle = '';
+let joinType = 'existing'; // 'existing' | 'draft'
+
+// ===== 初始化 =====
+async function init() {
+  await checkLogin();
+  await loadTopics();
+}
+
+async function loadTopics() {
+  try {
+    const topicsData = await fetch('/api/topics', { credentials: 'include' }).then(r => r.json());
+    allItems = Array.isArray(topicsData) ? topicsData : [];
+    renderAll();
+  } catch(e) {
+    console.error('加载选题失败:', e);
+    document.getElementById('main-grid').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>加载失败，请刷新重试</div>';
+  }
+}
+
+async function checkLogin() {
+  const r = await fetch('/api/auth/me', { credentials: 'include' });
+  const data = await r.json();
+  if (data.logged_in) {
+    currentUser = data;
+  }
+  renderNavUser();
+}
+
+function renderNavUser() {
+  const el = document.getElementById('navUser');
+  const myBtn = document.getElementById('my-sub-btn');
+  if (currentUser) {
+    el.innerHTML = `
+      <div class="user-dropdown">
+        <div class="user-info" onclick="toggleDropdown()">
+          <div class="user-avatar" style="background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text2)">${(currentUser.display_name||'U')[0]}</div>
+          <span class="user-name">${currentUser.display_name}</span>
+          <span style="color:var(--text3);font-size:12px">▾</span>
+        </div>
+        <div class="dropdown-menu" id="userDropdown">
+          ${currentUser.role === 'operator' ? '<a class="dropdown-item" href="/admin">⚙️ 运营后台</a>' : ''}
+          <div class="dropdown-item" onclick="doLogout()">退出</div>
+        </div>
+      </div>
+    `;
+    if (myBtn) myBtn.style.display = '';
+  } else {
+    el.innerHTML = `<button class="btn-login" onclick="showModal('loginModal')">登录</button>`;
+    if (myBtn) myBtn.style.display = 'none';
+  }
+}
+
+function toggleDropdown() {
+  document.getElementById('userDropdown')?.classList.toggle('show');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.user-dropdown')) {
+    document.getElementById('userDropdown')?.classList.remove('show');
+  }
+});
+
+// ===== 筛选 =====
+function setTypeFilter(type, btn) {
+  currentTypeFilter = type;
+  document.querySelectorAll('#type-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // 热点 tab 不需要来源筛选，隐藏之
+  // source-filters 始终显示（热点tab已移除）
+  renderAll();
+}
+
+function setSourceFilter(source, btn) {
+  currentSourceFilter = source;
+  document.querySelectorAll('#source-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+// ===== 渲染全部 =====
+const sourceLabel = { operator: '运营', brand: '厂商', creator: '创作者', auto: '系统' };
+const sourceClass = { operator: 'source-operator', brand: 'source-brand', creator: 'source-creator', auto: 'source-operator' };
+
+function renderAll() {
+  const grid = document.getElementById('main-grid');
+  let list = allItems;
+
+  // 类型筛选
+  if (currentTypeFilter) {
+    list = list.filter(item => {
+      if (currentTypeFilter === 'topic') return item.type === 'topic';
+      if (currentTypeFilter === 'plan')  return item.type === 'plan';
+      if (currentTypeFilter === 'trend') return item.type === 'trend';
+      return true;
+    });
+  }
+
+  // 来源筛选
+  if (currentSourceFilter) {
+    list = list.filter(item => item.source === currentSourceFilter);
+  }
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">📭</div>暂无内容</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(item => {
+    return renderTopicCard(item);
+  }).join('');
+}
+
+function renderTopicCard(t) {
+  const typeVal = t.type || 'topic';
+  const isPlan = typeVal === 'plan';
+  const isTrend = typeVal === 'trend';
+  const typeLabelText = isPlan ? '🏆 企划' : (isTrend ? '📊 趋势' : '💡 选题');
+  const typeCls = isPlan ? 'type-plan' : (isTrend ? 'type-trend' : 'type-topic');
+  const srcLabel = sourceLabel[t.source] || t.source;
+  const srcCls = sourceClass[t.source] || 'source-operator';
+  // 创作者来源认证标签
+  const certifiedBadge = (t.source === 'creator') ? '<span class="certified-badge">👑 官方认证</span>' : '';
+  // 参与按鈕用词差异化
+  const joinBtnText = isPlan ? '🙌 加入' : (isTrend ? '📈 参与' : '📝 一起做');
+  // 封面区域
+  const isOffline = t.status === 'offline';
+  const offlineMask = isOffline ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;border-radius:calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;z-index:2;"><span style="color:#fff;font-size:18px;font-weight:700;letter-spacing:2px;padding:6px 16px;border:2px solid rgba(255,255,255,0.7);border-radius:8px;background:rgba(0,0,0,0.3)">已下架</span></div>` : '';
+  let coverHtml;
+  if (t.cover_url) {
+    coverHtml = `<div class="card-cover-wrap" style="position:relative"><img class="card-cover-img" src="${escHtml(t.cover_url)}" alt="" loading="lazy" style="${isOffline ? 'filter:grayscale(60%)' : ''}" />${offlineMask}</div>`;
+  } else {
+    const placeholderCls = isPlan ? 'card-cover-plan' : 'card-cover-topic';
+    const placeholderIcon = isPlan ? '🏆' : '💡';
+    coverHtml = `<div class="card-cover-wrap" style="position:relative"><div class="card-cover-placeholder ${placeholderCls}">${isOffline ? '🔒' : placeholderIcon}</div>${offlineMask}</div>`;
+  }
+
+  return `
+    <div class="topic-card" onclick="showDetailView(${t.id}, '${escHtml(t.type)}')" style="${isOffline ? 'opacity:0.75' : ''}">
+      ${coverHtml}
+      <div class="topic-card-body">
+        <div class="badge-row">
+          <span class="type-badge ${typeCls}">${typeLabelText}</span>
+          <span class="source-badge ${srcCls}">${srcLabel}</span>${certifiedBadge}
+        </div>
+        <div class="card-title">${escHtml(t.title)}</div>
+        <div class="card-desc">${escHtml(t.description || '暂无描述')}</div>
+        <div class="card-footer">
+          <span class="card-stats">👥 ${t.participant_count || t.sub_count || 0} 人参与</span>
+          <div class="card-actions">
+            <button class="btn-sm btn-outline" onclick="event.stopPropagation();showDetailView(${t.id}, '${escHtml(t.type)}')">查看详情</button>
+            ${t.status === 'offline'
+              ? '<span class="btn-sm" style="color:var(--text3);font-size:12px;cursor:default"> 已下架</span>'
+              : `<button class="btn-sm btn-primary" onclick="event.stopPropagation();openJoinModal(${t.id}, '${escHtml(t.title).replace(/'/g, '\\&#39;')}', '${t.type}')">${joinBtnText}</button>`}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderHotCard(n) {
+  // 解析 sample_notes
+  let samples = [];
+  try { samples = typeof n.sample_notes === 'string' ? JSON.parse(n.sample_notes) : (n.sample_notes || []); } catch {}
+  const isPattern = !!n.pattern_type;  // 是否是范式卡片
+
+  const sampleHtml = samples.length ? `
+    <div class="hot-samples">
+      <div class="hot-samples-label">📌 代表内容</div>
+      <div class="hot-samples-list">
+        ${samples.slice(0,3).map(s => `
+          <div class="hot-sample-item">
+            <img class="hot-sample-cover" src="${proxyImg(s.cover)}" alt=""
+              onerror="this.style.display='none'" />
+            <div class="hot-sample-info">
+              <div class="hot-sample-title">${escHtml((s.title||'').slice(0,18))}</div>
+              <div class="hot-sample-meta">❤️${formatNum(s.likes)} &nbsp; ${escHtml(s.game||'')}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
+
+  return `
+    <div class="hot-card pattern-card" onclick="showHotPatternDetail(${JSON.stringify(n).replace(/"/g,'&quot;')})">
+      <div class="hot-card-img-wrap">
+        <div class="badge-row hot-card-badges">
+          <span class="type-badge type-hot">🔥 热点范式</span>
+          ${n.game_ip ? `<span class="game-ip-badge" style="position:relative;top:0;right:0">${escHtml(n.game_ip.split('/')[0].trim())}</span>` : ''}
+        </div>
+        ${n.cover
+          ? `<img class="hot-cover" src="${proxyImg(n.cover)}" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'" /><div class="hot-cover-placeholder" style="display:none">🎮</div>`
+          : `<div class="hot-cover-placeholder">🎮</div>`
+        }
+      </div>
+      <div class="hot-body">
+        <div class="hot-title">${escHtml(n.title || '')}</div>
+        <div style="font-size:12px;color:var(--text3);line-height:1.5;margin:4px 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escHtml(n.why_hot || '')}</div>
+        ${sampleHtml}
+        <div class="hot-meta" style="margin-top:8px">
+          <span class="hot-likes">涵盖 <span class="num">${escHtml(n.author || '')}</span></span>
+          ${n.game_ip ? `<span class="game-ip-badge">${escHtml(n.game_ip)}</span>` : ''}
+        </div>
+        <button class="btn-create" onclick="event.stopPropagation();openJoinModal('${escHtml(n.note_id||n.id||'')}', '${escHtml(n.title||'')}', 'hot')">✏️ 参与这个范式</button>
+      </div>
+    </div>
+  `;
+}
+
+function showHotPatternDetail(n) {
+  // 范式卡片详情展示：复用 detail-view
+  let samples = [];
+  try { samples = typeof n.sample_notes === 'string' ? JSON.parse(n.sample_notes) : (n.sample_notes || []); } catch {}
+
+  document.getElementById('dv-type-badge').textContent = '🔥 热点范式';
+  document.getElementById('dv-type-badge').className = 'type-badge type-hot';
+  document.getElementById('dv-source-badge').textContent = '自动收录';
+  document.getElementById('dv-source-badge').className = 'source-badge source-operator';
+  document.getElementById('dv-title').textContent = n.title || '';
+  document.getElementById('dv-desc').innerHTML = `
+    <div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--text1);margin-bottom:4px">🔥 为什么火</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">${escHtml(n.why_hot||'')}</div>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--text1);margin-bottom:4px">✍️ 怎么做</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">${escHtml(n.how_to||'')}</div>
+    </div>
+  `;
+  const benEl = document.getElementById('dv-benefits');
+  benEl.style.display = 'none';
+  const rewBox = document.getElementById('dv-reward');
+  if (rewBox) rewBox.style.display = 'none';
+
+  // 代表笔记部分
+  const refSection = document.getElementById('dv-ref-section');
+  const refScroll = document.getElementById('dv-ref-scroll');
+  if (samples.length) {
+    refSection.style.display = '';
+    document.getElementById('dv-ref-title').textContent = `📌 代表内容（${samples.length}条）`;
+    refScroll.innerHTML = samples.map(s => `
+      <div class="ref-note-card">
+        <img class="ref-note-card-cover" src="${proxyImg(s.cover)}" alt=""
+          onerror="this.style.display='none'" />
+        <div class="ref-note-card-body">
+          <div class="ref-note-card-title">${escHtml((s.title||'').slice(0,30))}</div>
+          <div class="ref-note-card-likes">❤️ ${formatNum(s.likes)}</div>
+          <div class="ref-note-card-author">@${escHtml(s.author||'')} &middot; ${escHtml(s.game||'')}</div>
+          <button class="ref-note-card-link" onclick="window.open('https://www.xiaohongshu.com/explore/${escHtml(s.note_id||'')}','_blank')">→ 查看原笔记</button>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    refSection.style.display = 'none';
+  }
+
+  currentDetailItem = n;
+  // 更新操作栏按鈕文本和调用
+  const participateBtn = document.getElementById('detail-participate-btn');
+  if (participateBtn) {
+    participateBtn.textContent = '✏️ 参与这个范式';
+    participateBtn.onclick = () => openJoinModal(n.note_id || n.id, n.title, 'hot');
+  }
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').classList.add('show');
+  document.getElementById('detail-action-bar').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== 详情视图 =====
+async function showDetailView(topicId, type) {
+  const r = await fetch(`/api/topics/${topicId}`, {credentials:'include'});
+  const t = await r.json();
+  currentDetailItem = t;
+
+  // 封面横幅
+  const coverBanner = document.getElementById('dv-cover-banner');
+  if (t.cover_url) {
+    coverBanner.innerHTML = `<img src="${escHtml(t.cover_url)}" class="detail-cover-banner" alt="" />`;
+    coverBanner.style.display = '';
+  } else {
+    coverBanner.style.display = 'none';
+    coverBanner.innerHTML = '';
+  }
+
+  // 类型 badge
+  const typeMap = { topic: ['💡 选题', 'type-topic'], plan: ['🏆 企划', 'type-plan'], trend: ['📊 趋势', 'type-trend'], hot: ['🔥 热点', 'type-hot'] };
+  const [typeText, typeCls] = typeMap[type] || ['💡 选题', 'type-topic'];
+  document.getElementById('dv-type-badge').textContent = typeText;
+  document.getElementById('dv-type-badge').className = `type-badge ${typeCls}`;
+
+  // 来源 badge
+  const srcLabel = sourceLabel[t.source] || t.source || '';
+  const srcCls = sourceClass[t.source] || 'source-operator';
+  document.getElementById('dv-source-badge').textContent = srcLabel;
+  document.getElementById('dv-source-badge').className = `source-badge ${srcCls}`;
+
+  document.getElementById('dv-title').textContent = t.title || '';
+  document.getElementById('dv-desc').textContent = t.description || '';
+
+  // 权益
+  const benEl = document.getElementById('dv-benefits');
+  if (t.benefits) {
+    benEl.textContent = '🎁 ' + t.benefits;
+    benEl.style.display = '';
+  } else {
+    benEl.style.display = 'none';
+  }
+
+  // 奖励
+  const rewBox = document.getElementById('dv-reward');
+  if (t.reward_amount > 0) {
+    document.getElementById('dv-reward-amount').textContent = `¥${t.reward_amount.toLocaleString()} 奖池`;
+    const rulesEl = document.getElementById('dv-reward-rules');
+    if (t.reward_rules) {
+      rulesEl.textContent = t.reward_rules;
+      rulesEl.style.display = '';
+    } else {
+      rulesEl.style.display = 'none';
+    }
+    rewBox.style.display = '';
+  } else {
+    rewBox.style.display = 'none';
+  }
+
+  // 参考笔记 — 支持 directions 多方向和普通 ref_notes
+  const refSection = document.getElementById('dv-ref-section');
+  const refScroll = document.getElementById('dv-ref-scroll');
+
+  // directions 优先（后端已 parse 成数组）
+  let dirs = Array.isArray(t.directions) ? t.directions : [];
+  let refIds = Array.isArray(t.ref_notes) ? t.ref_notes : [];
+  // 兼容旧字符串格式
+  if (typeof t.ref_notes === 'string') { try { refIds = JSON.parse(t.ref_notes); } catch { refIds = []; } }
+  refIds = refIds.map(r => typeof r === 'string' ? r : (r.note_id || r.id || r));
+
+  if (dirs.length > 0) {
+    // 多方向展示
+    refSection.style.display = '';
+    document.getElementById('dv-ref-title').textContent = '📌 参考方向';
+    let allNotes = []; // [{nid, dirIdx, noteIdx}]
+    refScroll.style.display = 'block';
+    refScroll.style.overflowX = 'unset';
+    refScroll.innerHTML = dirs.map((dir, di) => {
+      const notes = Array.isArray(dir.notes) ? dir.notes : [];
+      const notesHtml = notes.map((nid, ni) => {
+        const gid = 'dir'+di+'n'+ni;
+        allNotes.push({nid, gid});
+        return '<div class="ref-note-card" id="rcard-'+gid+'">'
+          + '<div class="ref-note-card-cover-placeholder" id="rcov-'+gid+'">🎮</div>'
+          + '<div class="ref-note-card-body">'
+          + '<div class="ref-note-card-title" id="rtit-'+gid+'">加载中...</div>'
+          + '<div class="ref-note-card-likes" id="rlik-'+gid+'"></div>'
+          + '<button class="ref-note-card-link" onclick="window.open(&quot;https://www.xiaohongshu.com/explore/'+escHtml(String(nid))+'&quot;,&quot;_blank&quot;)">→ 查看</button>'
+          + '</div></div>';
+      }).join('');
+      return '<div style="margin-bottom:22px">'
+        + (dir.title ? '<div style="font-weight:600;font-size:17px;margin-bottom:6px;color:var(--text1)">'+escHtml(dir.title)+'</div>' : '')
+        + (dir.desc ? '<div style="font-size:15px;color:var(--text2);margin-bottom:10px;line-height:1.7">'+escHtml(dir.desc)+'</div>' : '')
+        + (notes.length ? '<div style="display:flex;gap:12px;flex-wrap:wrap">'+notesHtml+'</div>' : '<div style="font-size:12px;color:var(--text3)">暂无参考笔记</div>')
+        + '</div>';
+    }).join('<hr style="margin:12px 0;border:none;border-top:1px solid var(--border)">');
+    // 异步加载所有方向的笔记
+    allNotes.forEach(({nid, gid}) => loadRefNoteCardById(nid, gid));
+  } else if (refIds.length) {
+    // 普通 ref_notes 展示（旧逻辑）
+    refSection.style.display = '';
+    document.getElementById('dv-ref-title').textContent = '📌 参考笔记';
+    refScroll.style.display = '';
+    refScroll.style.overflowX = '';
+    refScroll.innerHTML = refIds.map((nid, i) => `<div class="ref-note-card" id="ref-card-${i}">
+      <div class="ref-note-card-cover-placeholder" id="ref-cover-ph-${i}">🎮</div>
+      <div class="ref-note-card-body">
+        <div class="ref-note-card-title" id="ref-title-${i}">加载中...</div>
+        <div class="ref-note-card-likes" id="ref-likes-${i}"></div>
+        <div class="ref-note-card-author" id="ref-author-${i}"></div>
+        <button class="ref-note-card-link" onclick="window.open('https://www.xiaohongshu.com/explore/${escHtml(String(nid))}','_blank')">→ 查看笔记</button>
+      </div></div>`
+    ).join('');
+    refIds.forEach((nid, i) => loadRefNoteCard(nid, i));
+  } else {
+    refSection.style.display = 'none';
+  }
+
+  // 已有投稿
+  await loadSubmissions(topicId);
+
+  // 更新操作栏按鈕（创作者用词差异化）
+  const participateBtn = document.getElementById('detail-participate-btn');
+  if (participateBtn) {
+    if (t.status === 'offline') {
+      participateBtn.textContent = '🔒 该选题已下架，暂不可参与';
+      participateBtn.style.opacity = '0.5';
+      participateBtn.style.cursor = 'not-allowed';
+      participateBtn.onclick = null;
+    } else {
+      participateBtn.style.opacity = '';
+      participateBtn.style.cursor = '';
+      const btnText = (type === 'plan') ? '🙌 加入这个企划' : (type === 'trend' ? '📈 参与趋势' : '📝 一起做');
+      participateBtn.textContent = btnText;
+      participateBtn.onclick = () => openJoinModal(t.id, t.title, type || 'topic');
+    }
+  }
+
+  // 切换视图
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').classList.add('show');
+  document.getElementById('detail-action-bar').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// gid-based version for directions multi-section
+async function loadRefNoteCardById(nid, gid) {
+  try {
+    const r = await fetch(`/api/fetch_note?note_id=${nid}`, {credentials:'include'});
+    const data = await r.json();
+    const ph = document.getElementById('rcov-'+gid);
+    if (ph && data.cover) {
+      const img = document.createElement('img');
+      img.className = 'ref-note-card-cover';
+      img.src = proxyImg(data.cover);
+      img.alt = '';
+      img.onerror = () => { img.style.display='none'; ph.style.display='flex'; };
+      ph.replaceWith(img);
+    }
+    const titleEl = document.getElementById('rtit-'+gid);
+    if (titleEl) titleEl.textContent = data.title || nid;
+    const likesEl = document.getElementById('rlik-'+gid);
+    if (likesEl && data.likes) likesEl.textContent = '❤️ '+formatNum(data.likes);
+  } catch {}
+}
+
+async function loadRefNoteCard(nid, i) {
+  try {
+    const r = await fetch(`/api/fetch_note?note_id=${nid}`, {credentials:'include'});
+    const data = await r.json();
+
+    // 替换占位符为图片
+    const ph = document.getElementById(`ref-cover-ph-${i}`);
+    if (ph) {
+      if (data.cover) {
+        const img = document.createElement('img');
+        img.className = 'ref-note-card-cover';
+        img.src = proxyImg(data.cover);
+        img.alt = '';
+        img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+        ph.replaceWith(img);
+      }
+    }
+
+    const titleEl = document.getElementById(`ref-title-${i}`);
+    if (titleEl) titleEl.textContent = data.title || `笔记 ${nid}`;
+
+    const likesEl = document.getElementById(`ref-likes-${i}`);
+    if (likesEl && data.likes) likesEl.textContent = `❤️ ${formatNum(data.likes)}`;
+
+    const authorEl = document.getElementById(`ref-author-${i}`);
+    if (authorEl && data.author) authorEl.textContent = data.author;
+  } catch {
+    const titleEl = document.getElementById(`ref-title-${i}`);
+    if (titleEl) titleEl.textContent = `笔记 ${nid}`;
+  }
+}
+
+async function loadSubmissions(topicId) {
+  const titleEl = document.getElementById('dv-subs-title');
+  const contentEl = document.getElementById('dv-subs-content');
+
+  if (!currentUser) {
+    titleEl.textContent = '👥 已有投稿';
+    contentEl.innerHTML = '<div class="submissions-login-hint"><div style="font-size:24px;margin-bottom:8px">🔒</div>登录后查看完整投稿列表</div>';
+    return;
+  }
+
+  try {
+    const r = await fetch(`/api/topics/${topicId}/approved-submissions`, {credentials:'include'});
+    const subs = await r.json();
+    const count = Array.isArray(subs) ? subs.length : 0;
+    titleEl.textContent = ` 已有投稿（${count}人参与）`;
+    if (!count) {
+      contentEl.innerHTML = '<div style="color:var(--text3);font-size:14px;padding:16px 0">暂无投稿，快来成为第一个！</div>';
+      return;
+    }
+    contentEl.innerHTML = '<div class="submissions-grid">' + subs.map(s => {
+      const noteUrl = s.note_id ? `https://www.xiaohongshu.com/explore/${s.note_id}` : (s.note_link || '#');
+      const coverHtml = s.cover_url
+        ? `<img class="sub-card-cover" src="${s.cover_url}" alt="" onerror="this.style.display='none';this.parentElement.style.background='var(--card2)'" />`
+        : `<div class="sub-card-cover" style="display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--card2)">🎮</div>`;
+      return `<a class="sub-card" href="${noteUrl}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;cursor:pointer">
+        ${coverHtml}
+        <div class="sub-card-body">
+          <div class="sub-card-author">${escHtml(s.creator_name || s.contact || '匿名')}</div>
+          ${s.likes > 0 ? `<div class="sub-card-likes">❤️ ${formatNum(s.likes)}</div>` : ''}
+        </div>
+      </a>`;
+    }).join('') + '</div>';
+  } catch(e) {
+    console.error('loadSubmissions error:', e);
+    contentEl.innerHTML = '<div style="color:var(--text3);font-size:14px;padding:16px 0">投稿数据加载失败</div>';
+  }
+}
+
+function backToList() {
+  document.getElementById('detail-view').classList.remove('show');
+  document.getElementById('detail-action-bar').classList.remove('show');
+  document.getElementById('list-view').style.display = '';
+  document.getElementById('my-subs-view').style.display = 'none';
+  document.getElementById('main-grid').style.display = '';
+  currentDetailItem = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─ 我的投稿 ──
+let showingMySubs = false;
+
+function toggleMySubmissions() {
+  showingMySubs = !showingMySubs;
+  const myBtn = document.getElementById('my-sub-btn');
+  const myView = document.getElementById('my-subs-view');
+  const mainGrid = document.getElementById('main-grid');
+  const detailView = document.getElementById('detail-view');
+  const detailBar = document.getElementById('detail-action-bar');
+  
+  if (showingMySubs) {
+    detailView.classList.remove('show');
+    detailBar.classList.remove('show');
+    mainGrid.style.display = 'none';
+    myView.style.display = 'block';
+    myBtn.classList.add('active');
+    loadMySubmissions();
+  } else {
+    myView.style.display = 'none';
+    mainGrid.style.display = '';
+    myBtn.classList.remove('active');
+    loadTopics();
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function loadMySubmissions() {
+  const listEl = document.getElementById('my-subs-list');
+  if (!currentUser) {
+    listEl.innerHTML = '<div class="my-subs-empty"><div class="empty-icon">🔒</div>请先登录后查看</div>';
+    return;
+  }
+  listEl.innerHTML = '<div class="loading">加载中...</div>';
+  try {
+    const r = await fetch('/api/submissions', { credentials: 'include' });
+    const subs = await r.json();
+    if (!subs.length) {
+      listEl.innerHTML = '<div class="my-subs-empty"><div class="empty-icon">📭</div>你还没有投稿<br><span style="font-size:14px">去选题页面参与一个吧！</span></div>';
+      return;
+    }
+    const statusMap = {
+      pending: { cls: 'pending', text: '⏳ 待审核' },
+      approved: { cls: 'approved', text: '✅ 已通过' },
+      rejected: { cls: 'rejected', text: ' 已拒绝' }
+    };
+    listEl.innerHTML = subs.map(s => {
+      const st = statusMap[s.status] || statusMap.pending;
+      const topicTitle = escHtml(s.topic_title || '未知选题');
+      const typeText = s.submit_type === 'draft' ? '📝 脚本思路' : '📹 已有作品';
+      const coverUrl = s.cover_url || '';
+      const time = s.created_at ? new Date(s.created_at).toLocaleDateString('zh-CN') : '';
+      const rejectReason = s.status === 'rejected' && s.review_note ? `<div style="font-size:13px;color:var(--red);margin-top:6px">拒绝原因：${escHtml(s.review_note)}</div>` : '';
+      const resubmitBtn = (s.status === 'rejected' || s.status === 'approved') ? `<button class="btn-sm btn-outline" style="margin-top:8px" onclick="event.stopPropagation();openMySubEdit(${s.id})">✏️ 修改重新提交</button>` : '';
+      return `<div class="my-sub-card" onclick="openMySubDetail(${s.id})"
+        <img class="my-sub-cover" src="${escHtml(coverUrl)}" alt="" onerror="this.style.display='none'" />
+        <div class="my-sub-info">
+          <div class="my-sub-topic">${topicTitle}</div>
+          <div class="my-sub-meta">${typeText} · ${time}</div>
+          <span class="my-sub-status ${st.cls}">${st.text}</span>
+          ${rejectReason}
+          ${resubmitBtn}
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    listEl.innerHTML = '<div class="my-subs-empty"><div class="empty-icon">⚠️</div>加载失败，请重试</div>';
+  }
+}
+
+function openJoinFromDetail() {
+  if (!currentDetailItem) return;
+  const id = currentDetailItem.id || currentDetailItem.note_id;
+  const title = currentDetailItem.title;
+  const type = currentDetailItem.type || 'topic';
+  openJoinModal(id, title, type);
+}
+
+// ===== 参与弹窗 =====
+function openJoinModal(topicId, topicTitle, type) {
+  currentJoinTopicId = topicId;
+  currentJoinTopicTitle = topicTitle || '';
+  joinType = 'existing';
+  // 更新标题（创作者用词差异化）
+  const safeTitle = escHtml(String(topicTitle || ''));
+  let modalTitle;
+  if (type === 'plan') {
+    modalTitle = `加入「${safeTitle}」企划`;
+  } else {
+    modalTitle = `参与「${safeTitle}」这个方向`;
+  }
+  document.getElementById('join-modal-title').innerHTML = modalTitle;
+  // 重置表单
+  document.getElementById('join-note-link').value = '';
+  document.getElementById('join-note-title').value = '';
+  document.getElementById('join-existing-profile').value = '';
+  document.getElementById('join-draft-profile').value = '';
+  document.getElementById('join-draft-contact').value = '';
+  document.getElementById('join-draft-content').value = '';
+  document.getElementById('join-draft-count').textContent = '0';
+  document.getElementById('join-note-preview').style.display = 'none';
+  // 重置模式选择
+  selectJoinMode('existing');
+  showModal('joinModal');
+}
+
+function selectJoinMode(mode) {
+  joinType = mode;
+  document.getElementById('join-btn-existing').classList.toggle('selected', mode === 'existing');
+  document.getElementById('join-btn-draft').classList.toggle('selected', mode === 'draft');
+  document.getElementById('join-panel-existing').classList.toggle('visible', mode === 'existing');
+  document.getElementById('join-panel-draft').classList.toggle('visible', mode === 'draft');
+}
+
+function updateJoinDraftCount() {
+  const val = document.getElementById('join-draft-content').value;
+  document.getElementById('join-draft-count').textContent = val.length;
+}
+
+let joinPreviewDebounce = null;
+function onJoinNoteLinkInput(val) {
+  clearTimeout(joinPreviewDebounce);
+  if (!val.trim()) {
+    document.getElementById('join-note-preview').style.display = 'none';
+    return;
+  }
+  joinPreviewDebounce = setTimeout(() => fetchJoinNotePreview(val), 600);
+}
+
+async function fetchJoinNotePreview(val) {
+  let nid = val.trim();
+  const m = val.match(/\/explore\/([a-zA-Z0-9]+)/);
+  if (m) nid = m[1];
+  else {
+    const m2 = val.match(/note_id=([a-zA-Z0-9]+)/);
+    if (m2) nid = m2[1];
+    else if (/^[a-zA-Z0-9]{16,}$/.test(val)) nid = val;
+  }
+  if (!nid || nid.length < 10) return;
+
+  const prevEl = document.getElementById('join-note-preview');
+  prevEl.style.display = 'flex';
+  document.getElementById('join-preview-title').textContent = '获取中...';
+  document.getElementById('join-preview-meta').textContent = '';
+
+  try {
+    const r = await fetch(`/api/fetch_note?note_id=${nid}`, {credentials:'include'});
+    const data = await r.json();
+    document.getElementById('join-preview-cover').src = data.cover || '';
+    const autoTitle = data.title || nid;
+    document.getElementById('join-preview-title').textContent = autoTitle;
+    document.getElementById('join-preview-meta').textContent = data.likes ? `❤️ ${formatNum(data.likes)}` : '';
+    // 自动填充标题
+    if (!document.getElementById('join-note-title').value) {
+      document.getElementById('join-note-title').value = autoTitle;
+    }
+  } catch {
+    document.getElementById('join-preview-title').textContent = nid;
+  }
+}
+
+async function doJoinSubmit() {
+  const btn = document.getElementById('join-submit-btn');
+  if (joinType === 'existing') {
+    const noteLink = document.getElementById('join-note-link').value.trim();
+    if (!noteLink) { showToast('请输入笔记链接', 'error'); return; }
+    const noteTitle = document.getElementById('join-note-title').value.trim();
+    const profileLink = document.getElementById('join-existing-profile').value.trim();
+    btn.disabled = true;
+    btn.textContent = '提交中...';
+    try {
+      const resp = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          topic_id: currentJoinTopicId,
+          submit_type: 'existing',
+          note_link: noteLink,
+          note_title: noteTitle,
+          profile_link: profileLink,
+        })
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        hideModal('joinModal');
+        showToast('✅ 投稿成功！运营会在1-2个工作日内审核，通过后将展示在选题页面', 'success');
+      } else {
+        showToast(data.error || '提交失败，请重试', 'error');
+      }
+    } catch {
+      showToast('网络错误，请重试', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '提交参与申请';
+    }
+  } else {
+    const profileLink = document.getElementById('join-draft-profile').value.trim();
+    const contact = document.getElementById('join-draft-contact').value.trim();
+    const draftContent = document.getElementById('join-draft-content').value.trim();
+    if (!profileLink) { showToast('请输入小红书主页链接', 'error'); return; }
+    if (!contact) { showToast('请输入联系方式', 'error'); return; }
+    if (draftContent.length < 1) { showToast('请填写脚本思路', 'error'); return; }
+    btn.disabled = true;
+    btn.textContent = '提交中...';
+    try {
+      const resp = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          topic_id: currentJoinTopicId,
+          submit_type: 'draft',
+          profile_link: profileLink,
+          contact: contact,
+          draft_content: draftContent,
+        })
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        hideModal('joinModal');
+        showToast('✅ 申请成功！运营会联系您的小红书账号 / 微信，一起共创这个内容', 'success');
+      } else {
+        showToast(data.error || '提交失败，请重试', 'error');
+      }
+    } catch {
+      showToast('网络错误，请重试', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '提交参与申请';
+    }
+  }
+}
+
+// 兼容旧函数（如果其他地方不小心调用则不报错）
+function openSubmit(topicId, title) { openJoinModal(topicId, title, 'topic'); }
+function openSubmitFromHot(noteId, title) { openJoinModal(noteId, title, 'hot'); }
+function openSubmitFromDetail() { openJoinFromDetail(); }
+
+// ===== 发布 =====
+function openPublish() {
+  if (!currentUser) {
+    showToast('请先登录', 'error');
+    showModal('loginModal');
+    return;
+  }
+  refNotes = [];
+  publishType = 'topic';
+  document.getElementById('pub-title').value = '';
+  clearIdxCover();
+  document.getElementById('pub-desc').value = '';
+  const benEl = document.getElementById('pub-benefits'); if (benEl) benEl.value = '';
+  const rewEl = document.getElementById('pub-reward'); if (rewEl) rewEl.value = '';
+  const rulEl = document.getElementById('pub-rules'); if (rulEl) rulEl.value = '';
+  const refList = document.getElementById('ref-notes-list'); if (refList) refList.innerHTML = '';
+  document.querySelectorAll('.type-option').forEach((el, i) => el.classList.toggle('selected', i === 0));
+  const planFields = document.getElementById('plan-fields'); if (planFields) planFields.style.display = 'none';
+  showModal('publishModal');
+}
+
+function selectPublishType(type, el) {
+  publishType = type;
+  document.querySelectorAll('.type-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  const pf = document.getElementById('plan-fields'); if (pf) pf.style.display = type === 'plan' ? '' : 'none';
+}
+
+async function addRefNote() {
+  if (refNotes.length >= 20) { showToast('最多添加20个参考笔记', 'error'); return; }
+  const input = document.getElementById('ref-note-input');
+  const nid = input.value.trim();
+  if (!nid) return;
+  if (refNotes.find(n => n.id === nid)) { showToast('已添加过该笔记', 'error'); return; }
+
+  input.value = '';
+  const note = { id: nid, title: '加载中...', cover: '' };
+  refNotes.push(note);
+  renderRefNotes();
+
+  try {
+    const r = await fetch(`/api/fetch_note?note_id=${nid}`, {credentials:'include'});
+    const data = await r.json();
+    note.title = data.title || nid;
+    note.cover = data.cover || '';
+    note.likes = data.likes || 0;
+    note.author = data.author || '';
+    renderRefNotes();
+  } catch { note.title = nid; renderRefNotes(); }
+}
+
+function removeRefNote(id) {
+  refNotes = refNotes.filter(n => n.id !== id);
+  renderRefNotes();
+}
+
+function renderRefNotes() {
+  document.getElementById('ref-notes-list').innerHTML = refNotes.map(n => `
+    <div class="ref-note-item">
+      ${n.cover ? `<img class="ref-note-cover" src="${proxyImg(n.cover)}" alt="" onerror="this.style.display='none'" />` : `<div class="ref-note-cover" style="display:flex;align-items:center;justify-content:center;font-size:20px">🎮</div>`}
+      <div style="flex:1;min-width:0">
+        <div class="ref-note-title">${escHtml(n.title || n.id)}</div>
+        ${n.likes ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">❤️ ${formatNum(n.likes)}</div>` : ''}
+      </div>
+      <button class="btn-icon" onclick="removeRefNote('${n.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+
+// ===== 创作者端封面上传 =====
+let idxCoverUrl = '';
+async function onIdxCoverChange(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const r = await fetch('/api/upload', { method:'POST', credentials:'include', body:fd });
+    const d = await r.json();
+    if (d.url) { idxCoverUrl = d.url; showIdxCover(d.url); }
+    else alert(d.error || '上传失败');
+  } catch(e) { alert('上传失败'); }
+}
+function onIdxCoverUrl(input) {
+  idxCoverUrl = input.value.trim();
+  if (idxCoverUrl) showIdxCover(idxCoverUrl);
+  else clearIdxCover();
+}
+function showIdxCover(url) {
+  document.getElementById('idx-cover-ph').style.display = 'none';
+  const img = document.getElementById('idx-cover-img');
+  img.src = url; img.style.display = 'block';
+  const ui = document.getElementById('idx-cover-url');
+  if (ui && ui.value !== url) ui.value = url;
+}
+function clearIdxCover() {
+  idxCoverUrl = '';
+  document.getElementById('idx-cover-ph').style.display = '';
+  const img = document.getElementById('idx-cover-img');
+  img.src = ''; img.style.display = 'none';
+  const ui = document.getElementById('idx-cover-url');
+  if (ui) ui.value = '';
+  const fi = document.getElementById('idx-cover-input');
+  if (fi) fi.value = '';
+}
+
+async function doPublish() {
+  const title = document.getElementById('pub-title').value.trim();
+  if (!title) { showToast('请输入标题', 'error'); return; }
+  const descVal = document.getElementById('pub-desc').value.trim();
+  if (descVal.length < 10) { showToast('描述至少10个字（当前' + descVal.length + '字）', 'error'); return; }
+
+  const body = {
+    type: publishType,
+    title,
+    description: document.getElementById('pub-desc').value,
+    ref_notes: refNotes.map(n => ({ id: n.id, title: n.title, cover: n.cover })),
+    cover_url: idxCoverUrl,
+  };
+
+  const r = await fetch('/api/topics', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await r.json();
+  if (r.ok) {
+    const msg = data.status === 'published' ? '发布成功 🎉' : '已提交，等待运营审核';
+    showToast(msg, 'success');
+    hideModal('publishModal');
+    // 刷新列表
+    const topicsData = await fetch('/api/topics', { credentials: 'include' }).then(res => res.json());
+    allItems = topicsData;
+    renderAll();
+  } else {
+    showToast(data.error || '发布失败', 'error');
+  }
+}
+
+// ===== 登录相关 =====
+function switchLoginTab(type, btn) {
+  ['creator','brand','operator'].forEach(t => {
+    document.getElementById(`login-${t}`).style.display = t === type ? '' : 'none';
+  });
+  document.querySelectorAll('.modal-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// 创作者登录/注册 tab 切换
+function switchCreatorAuthTab(tab, btn) {
+  document.getElementById('creator-login-panel').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('creator-register-panel').style.display = tab === 'register' ? '' : 'none';
+  document.querySelectorAll('#creator-auth-tabs .modal-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('login-modal-title').textContent = tab === 'login' ? '创作者登录' : '创作者注册';
+}
+
+// 截图上传预览
+let regScreenshotUrl = '';
+function onScreenshotChange(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('请上传图片文件', 'error'); return; }
+  if (file.size > 10 * 1024 * 1024) { showToast('图片大小不能超过10MB', 'error'); return; }
+  // 预览
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('reg-screenshot-thumb').src = e.target.result;
+    document.getElementById('reg-screenshot-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  // 上传
+  uploadScreenshot(file);
+}
+
+function onScreenshotDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('请上传图片文件', 'error'); return; }
+  if (file.size > 10 * 1024 * 1024) { showToast('图片大小不能超过10MB', 'error'); return; }
+  // 预览
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('reg-screenshot-thumb').src = ev.target.result;
+    document.getElementById('reg-screenshot-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  // 上传
+  uploadScreenshot(file);
+}
+
+async function uploadScreenshot(file) {
+  const btn = document.getElementById('reg-creator-btn');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '上传中...';
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const r = await fetch('/api/upload', {
+      method: 'POST',
+      credentials: 'include',
+      body: formData
+    });
+    const data = await r.json();
+    if (r.ok && data.url) {
+      regScreenshotUrl = data.url;
+      showToast('截图上传成功', 'success');
+    } else {
+      showToast(data.error || '上传失败', 'error');
+      regScreenshotUrl = '';
+    }
+  } catch {
+    showToast('网络错误，上传失败', 'error');
+    regScreenshotUrl = '';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+// 创作者登录
+async function doCreatorLogin() {
+  const name = document.getElementById('creator-login-name').value.trim();
+  const password = document.getElementById('creator-login-password').value;
+  if (!name) { showToast('请输入昵称', 'error'); return; }
+  if (!password) { showToast('请输入密码', 'error'); return; }
+
+  const r = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ username: name, password })
+  });
+  const data = await r.json();
+  if (r.ok) {
+    currentUser = data;
+    renderNavUser();
+    hideModal('loginModal');
+    showToast(`欢迎回来，${data.display_name} 🌸`, 'success');
+  } else {
+    showToast(data.error || '登录失败，请检查昵称和密码', 'error');
+  }
+}
+
+// 创作者注册
+async function doCreatorRegister() {
+  const name = document.getElementById('reg-creator-name').value.trim();
+  const profileUrl = document.getElementById('reg-creator-profile').value.trim();
+  const password = document.getElementById('reg-creator-password').value;
+  const password2 = document.getElementById('reg-creator-password2').value;
+
+  if (!name) { showToast('请输入小红书昵称', 'error'); return; }
+  if (!profileUrl) { showToast('请输入小红书主页链接', 'error'); return; }
+  if (!regScreenshotUrl) { showToast('请上传小红书主页截图', 'error'); return; }
+  if (!password || password.length < 6) { showToast('密码至少6位', 'error'); return; }
+  if (password !== password2) { showToast('两次输入的密码不一致', 'error'); return; }
+
+  const btn = document.getElementById('reg-creator-btn');
+  btn.disabled = true;
+  btn.textContent = '注册中...';
+
+  try {
+    const r = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        display_name: name,
+        xhs_profile_url: profileUrl,
+        xhs_screenshot: regScreenshotUrl,
+        password: password
+      })
+    });
+    const data = await r.json();
+    if (r.ok) {
+      // 注册成功，自动登录
+      currentUser = data;
+      renderNavUser();
+      hideModal('loginModal');
+      document.getElementById('reg-creator-name').value = '';
+      document.getElementById('reg-creator-profile').value = '';
+      document.getElementById('reg-creator-password').value = '';
+      document.getElementById('reg-creator-password2').value = '';
+      document.getElementById('reg-screenshot-preview').style.display = 'none';
+      regScreenshotUrl = '';
+      showToast('注册成功！欢迎加入 🎉', 'success');
+    } else {
+      showToast(data.error || '注册失败', 'error');
+    }
+  } catch {
+    showToast('网络错误，请重试', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '注册';
+  }
+}
+
+
+function doXhsLogin() {
+  showToast('请使用昵称登录', 'error');
+}
+
+async function doLogin(type) {
+  let username, password;
+  if (type === 'operator') {
+    username = 'operator';
+    password = document.getElementById('op-password').value;
+  } else {
+    username = document.getElementById('brand-username').value.trim();
+    password = document.getElementById('brand-password').value;
+  }
+  if (!password) { showToast('请输入密码', 'error'); return; }
+
+  const r = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+  const data = await r.json();
+  if (r.ok) {
+    currentUser = data;
+    renderNavUser();
+    hideModal('loginModal');
+    showToast(`欢迎回来，${data.display_name} 👋`, 'success');
+  } else {
+    showToast(data.error || '登录失败', 'error');
+  }
+}
+
+async function doRegister() {
+  const username = document.getElementById('reg-username').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const company = document.getElementById('reg-company').value.trim();
+  const display = document.getElementById('reg-display').value.trim();
+  if (!username || !password) { showToast('请填写用户名和密码', 'error'); return; }
+
+  const r = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password, company, display_name: display || username })
+  });
+  const data = await r.json();
+  if (r.ok) {
+    currentUser = data;
+    renderNavUser();
+    hideModal('registerModal');
+    showToast('注册成功！欢迎加入 🎉', 'success');
+  } else {
+    showToast(data.error || '注册失败', 'error');
+  }
+}
+
+function showRegister() {
+  hideModal('loginModal');
+  showModal('registerModal');
+}
+
+async function doLogout() {
+  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include'});
+  currentUser = null;
+  renderNavUser();
+  showToast('已退出登录', 'success');
+}
+
+// ===== 弹窗工具 =====
+function showModal(id) {
+  document.getElementById(id).classList.add('show');
+}
+function hideModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+function closeModal(e, id) {
+  if (e.target.id === id) hideModal(id);
+}
+
+// ===== Toast =====
+let toastTimer = null;
+function showToast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ===== 工具函数 =====
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function proxyImg(url) {
+  if (!url) return '';
+  // xhscdn.com 图片浏览器直接加载（有登录态），ci.xiaohongshu.com 走代理
+  if (url.includes('xhscdn.com') || url.includes('sns-avatar')) return url;
+  return '/api/proxy_image?url=' + encodeURIComponent(url);
+}
+// 异步加载笔记卡片信息（封面、标题、点赞）
+async function loadNoteCard(noteId, el) {
+  if (!noteId || !el) return;
+  try {
+    const r = await fetch('/api/fetch_note?note_id=' + noteId, {credentials:'include'});
+    const d = await r.json();
+    if (d.cover) {
+      const img = el.querySelector('.note-card-cover');
+      if (img) { img.src = proxyImg(d.cover); img.style.display = ''; }
+      const ph = el.querySelector('.note-card-cover-ph');
+      if (ph) ph.style.display = 'none';
+    }
+    if (d.title) {
+      const t = el.querySelector('.note-card-title');
+      if (t) t.textContent = d.title;
+    }
+    if (d.likes != null) {
+      const lk = el.querySelector('.note-card-likes');
+      if (lk) lk.textContent = '❤️ ' + formatNum(d.likes);
+    }
+    if (d.author) {
+      const au = el.querySelector('.note-card-author');
+      if (au) au.textContent = '@' + d.author;
+    }
+  } catch(e) {}
+}
+function formatNum(n) {
+  n = parseInt(n) || 0;
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+  return n.toString();
+}
+
+init();
+</script>
+
+<!-- 我的投稿详情弹窗 -->
+<div class="modal-overlay" id="mySubDetailModal" onclick="closeModal(event, 'mySubDetailModal')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">投稿详情</span>
+      <button class="modal-close" onclick="hideModal('mySubDetailModal')">×</button>
+    </div>
+    <div id="mySubDetailContent" style="padding:20px"></div>
+  </div>
+</div>
+<!-- 我的投稿编辑弹窗 -->
+<div class="modal-overlay" id="mySubEditModal" onclick="closeModal(event, 'mySubEditModal')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">修改投稿</span>
+      <button class="modal-close" onclick="hideModal('mySubEditModal')">×</button>
+    </div>
+    <div id="mySubEditContent" style="padding:20px"></div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "paradigm-platform",
+  "version": "1.0.0",
+  "description": "游戏IF剧场约稿平台 - Cloudflare Workers版",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
